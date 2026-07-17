@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Co-op: Predictive Maintenance Internship Program</title>
+<style>
+  :root{
+    --primary: #1F4E79;
+    --primary-light: #2E6DA4;
+    --bg: #F4F7FB;
+    --card-bg: #FFFFFF;
+    --text: #22303F;
+    --muted: #5B6B7B;
+    --green: #1E8449;
+    --green-bg: #E8F8EE;
+    --red: #C0392B;
+    --red-bg: #FDECEA;
+    --border: #E1E8F0;
+    --shadow: 0 4px 14px rgba(31, 78, 121, 0.10);
+    --shadow-hover: 0 8px 22px rgba(31, 78, 121, 0.16);
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  header{
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: #fff;
+    padding: 28px 20px;
+    box-shadow: var(--shadow);
+  }
+
+  header .header-inner{
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  header h1{
+    margin: 0 0 4px 0;
+    font-size: 1.6rem;
+    font-weight: 700;
+  }
+
+  header p.subtitle{
+    margin: 0;
+    font-size: 0.95rem;
+    color: #DCE9F5;
+  }
+
+  .progress-wrap{
+    max-width: 1100px;
+    margin: 18px auto 0 auto;
+    background: rgba(255,255,255,0.15);
+    border-radius: 999px;
+    padding: 4px;
+  }
+
+  .progress-bar-bg{
+    background: rgba(255,255,255,0.25);
+    border-radius: 999px;
+    height: 22px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .progress-bar-fill{
+    background: #fff;
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.4s ease;
+  }
+
+  .progress-label{
+    max-width: 1100px;
+    margin: 8px auto 0 auto;
+    font-size: 0.9rem;
+    color: #EAF2FA;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  main{
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 20px 60px 20px;
+  }
+
+  .tabs{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 22px;
+  }
+
+  .tab-btn{
+    flex: 1 1 auto;
+    min-width: 110px;
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    color: var(--muted);
+    padding: 10px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    box-shadow: var(--shadow);
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .tab-btn:hover{
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-1px);
+  }
+
+  .tab-btn.active{
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+  }
+
+  .tab-btn.completed:not(.active){
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  .checkmark{
+    color: var(--green);
+    font-weight: 900;
+  }
+
+  .tab-btn.active .checkmark{
+    color: #A9F0C6;
+  }
+
+  .toolbar{
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 18px;
+  }
+
+  .reset-btn{
+    background: var(--card-bg);
+    border: 2px solid var(--red);
+    color: var(--red);
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+  }
+
+  .reset-btn:hover{
+    background: var(--red-bg);
+  }
+
+  .card{
+    background: var(--card-bg);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .week-header{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .week-header h2{
+    margin: 0;
+    color: var(--primary);
+    font-size: 1.35rem;
+  }
+
+  .week-number{
+    display: inline-block;
+    background: var(--primary);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-bottom: 8px;
+  }
+
+  .goal{
+    color: var(--muted);
+    font-size: 1rem;
+    margin: 6px 0 16px 0;
+  }
+
+  .tools-row{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .tool-chip{
+    background: var(--green-bg);
+    color: var(--primary);
+    border: 1px solid var(--border);
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  h3.section-title{
+    color: var(--primary);
+    font-size: 1.05rem;
+    margin: 22px 0 12px 0;
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 6px;
+  }
+
+  .day-list{
+    display: grid;
+    gap: 10px;
+  }
+
+  .day-item{
+    display: flex;
+    gap: 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    align-items: flex-start;
+  }
+
+  .day-badge{
+    flex: 0 0 auto;
+    background: var(--primary);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+
+  .day-text{
+    font-size: 0.92rem;
+    color: var(--text);
+  }
+
+  .deliverable-box{
+    background: var(--green-bg);
+    border: 1px solid #BFE6CC;
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 0.92rem;
+    color: #164A2C;
+  }
+
+  .deliverable-box strong{
+    color: var(--green);
+  }
+
+  .quiz-question{
+    font-weight: 600;
+    margin-bottom: 14px;
+    font-size: 0.98rem;
+  }
+
+  .quiz-options{
+    display: grid;
+    gap: 10px;
+  }
+
+  .quiz-option{
+    text-align: left;
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    color: var(--text);
+  }
+
+  .quiz-option:hover:not(:disabled){
+    border-color: var(--primary-light);
+  }
+
+  .quiz-option.correct{
+    background: var(--green-bg);
+    border-color: var(--green);
+    color: #164A2C;
+    font-weight: 600;
+  }
+
+  .quiz-option.incorrect{
+    background: var(--red-bg);
+    border-color: var(--red);
+    color: var(--red);
+    font-weight: 600;
+  }
+
+  .quiz-option:disabled{
+    cursor: default;
+    opacity: 0.85;
+  }
+
+  .quiz-feedback{
+    margin-top: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    min-height: 1.2em;
+  }
+
+  .quiz-feedback.correct-text{ color: var(--green); }
+  .quiz-feedback.incorrect-text{ color: var(--red); }
+
+  .prompt-list{
+    display: grid;
+    gap: 10px;
+    counter-reset: prompt-counter;
+  }
+
+  .prompt-item{
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .prompt-num{
+    flex: 0 0 auto;
+    background: var(--primary-light);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .prompt-text{
+    font-size: 0.9rem;
+    font-family: "Segoe UI", Arial, sans-serif;
+  }
+
+  .actions-row{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .complete-btn{
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    padding: 11px 20px;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+  }
+
+  .complete-btn:hover{
+    background: var(--primary-light);
+  }
+
+  .complete-btn.is-completed{
+    background: var(--green);
+  }
+
+  .nav-buttons{
+    display: flex;
+    gap: 10px;
+  }
+
+  .nav-btn{
+    background: var(--card-bg);
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .nav-btn:hover:not(:disabled){
+    background: var(--primary);
+    color: #fff;
+  }
+
+  .nav-btn:disabled{
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  footer{
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.8rem;
+    padding: 20px;
+  }
+
+  @media (max-width: 640px){
+    header h1{ font-size: 1.25rem; }
+    .tab-btn{ min-width: 80px; font-size: 0.78rem; padding: 8px; }
+    .card{ padding: 16px; }
+    .actions-row{ flex-direction: column; align-items: stretch; }
+    .nav-buttons{ justify-content: space-between; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <h1>AI Co-op Internship Program</h1>
+    <p class="subtitle">Predictive Maintenance for Industrial Equipment &mdash; 7-Week Learning Path</p>
+    <div class="progress-wrap">
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="progress-label">
+      <span id="progressText">0/7 weeks completed</span>
+      <span id="progressPercent">0%</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="tabs" id="tabsContainer"></div>
+
+  <div class="toolbar">
+    <button class="reset-btn" id="resetBtn">Reset Progress</button>
+  </div>
+
+  <div id="weekContent"></div>
+</main>
+
+<footer>
+  Predictive Maintenance AI Co-op &mdash; Progress is saved automatically in this browser.
+</footer>
+
+<script>
+(function(){
+
+  var STORAGE_KEY = "coop_completed";
+
+  var WEEKS = [
+    {
+      title: "Predictive Maintenance Foundations and Maintenance Intelligence",
+      goal: "Understand what predictive maintenance is, why it matters for industrial equipment, and how AI supports maintenance decision-making.",
+      tools: ["ChatGPT / Copilot", "Google Colab"],
+      days: [
+        "Learn the difference between reactive, preventive, and predictive maintenance strategies.",
+        "Review real-world industrial equipment failure case studies and their business impact.",
+        "Study common sensor data types: temperature, vibration, torque, and tool wear.",
+        "Practice the Maintenance Prompt Library on sample equipment readings using ChatGPT/Copilot.",
+        "Write a one-page maintenance intelligence briefing summarizing key findings."
+      ],
+      deliverable: "A one-page \"Maintenance Intelligence Brief\" summarizing key risk factors for a sample piece of equipment, created using the Maintenance Prompt Library with ChatGPT/Copilot.",
+      quiz: {
+        question: "Which maintenance strategy uses real-time data and AI to predict failures before they happen?",
+        options: ["Reactive Maintenance", "Preventive Maintenance", "Predictive Maintenance", "Corrective Maintenance"],
+        correct: 2
+      },
+      promptLibrary: [
+        "Analyze the following equipment readings and identify possible maintenance risks.",
+        "Explain which sensor reading is most likely contributing to the failure risk.",
+        "Generate a maintenance recommendation based on temperature, vibration, torque, and tool wear.",
+        "Summarize the equipment condition for a maintenance supervisor.",
+        "Classify the equipment condition as Low, Medium, or High risk and explain why.",
+        "Identify which readings are abnormal and what inspection action should be considered.",
+        "Compare two equipment cases and explain which one requires earlier maintenance attention.",
+        "Explain how tool wear can increase the probability of machine failure.",
+        "Create a short maintenance report from the following equipment readings.",
+        "Suggest what additional data would help improve failure prediction."
+      ]
+    },
+    {
+      title: "Python Fundamentals in Google Colab",
+      goal: "Build the core Python programming skills needed for data analysis, using Google Colab as the primary development environment.",
+      tools: ["Google Colab", "Python", "ChatGPT / Copilot"],
+      days: [
+        "Set up Google Colab and learn notebook basics: cells, runtime, variables, and data types.",
+        "Practice control flow with if/else statements and loops.",
+        "Work with functions, lists, and dictionaries.",
+        "Explore how to import and use Python libraries inside a notebook.",
+        "Complete a mini coding challenge: write a script that flags equipment readings above threshold values."
+      ],
+      deliverable: "A Google Colab notebook containing 5 solved Python exercises plus one working \"threshold alert\" script.",
+      quiz: {
+        question: "Which Python data structure stores data as key-value pairs?",
+        options: ["List", "Tuple", "Dictionary", "Set"],
+        correct: 2
+      }
+    },
+    {
+      title: "Data Analytics with Python",
+      goal: "Learn to load, clean, and analyze equipment sensor datasets using Pandas.",
+      tools: ["Google Colab", "Python", "Pandas", "ChatGPT / Copilot"],
+      days: [
+        "Import Pandas and load a CSV sensor dataset into a DataFrame.",
+        "Explore the data using .describe() and .info(), and handle missing values.",
+        "Filter, sort, and group data by equipment ID or failure status.",
+        "Create new calculated columns, such as a basic risk score.",
+        "Summarize findings and use AI prompts to help interpret the statistics."
+      ],
+      deliverable: "A cleaned dataset (CSV) plus a Colab notebook with summary statistics and at least 3 written data insights.",
+      quiz: {
+        question: "Which Pandas function is used to load a CSV file into a DataFrame?",
+        options: ["pd.load_csv()", "pd.read_csv()", "pd.open_csv()", "pd.import_csv()"],
+        correct: 1
+      }
+    },
+    {
+      title: "Visualization, Power BI Dashboard, and Business Insights",
+      goal: "Visualize sensor and failure trends, then build an interactive Power BI dashboard for business stakeholders.",
+      tools: ["Matplotlib", "Power BI Desktop", "PowerPoint", "ChatGPT / Copilot"],
+      days: [
+        "Create basic Matplotlib plots (line, bar, scatter) to visualize sensor trends.",
+        "Build histograms and boxplots to visualize failure risk distributions.",
+        "Import the cleaned dataset into Power BI Desktop and build the first visuals.",
+        "Build an interactive Power BI dashboard with filters, KPI cards, and trend charts.",
+        "Prepare a business insights summary for a stakeholder presentation."
+      ],
+      deliverable: "A Power BI dashboard file (.pbix) and 3 Matplotlib charts highlighting key maintenance trends.",
+      quiz: {
+        question: "Which tool is best suited for building an interactive business dashboard?",
+        options: ["Matplotlib", "Power BI Desktop", "Python console", "PowerPoint"],
+        correct: 1
+      }
+    },
+    {
+      title: "Machine Learning for Failure Prediction",
+      goal: "Build a first machine learning model that predicts equipment failure risk using Scikit-learn.",
+      tools: ["Google Colab", "Python", "Scikit-learn", "Pandas", "ChatGPT / Copilot"],
+      days: [
+        "Learn core ML concepts: features, labels, and the train/test split.",
+        "Prepare data for modeling using Scikit-learn preprocessing tools.",
+        "Train a classification model, such as logistic regression or a decision tree.",
+        "Generate predictions on the test set and interpret the model output.",
+        "Use AI prompts to help explain the model's decisions in plain language."
+      ],
+      deliverable: "A trained ML model inside a Colab notebook that predicts failure risk, with a short written explanation of the results.",
+      quiz: {
+        question: "In machine learning, what is used to evaluate how well a model performs on unseen data?",
+        options: ["Training set", "Test set", "Feature set", "Label set"],
+        correct: 1
+      }
+    },
+    {
+      title: "Evaluation and Optimization",
+      goal: "Evaluate model performance using key metrics and improve the model through tuning.",
+      tools: ["Scikit-learn", "Python", "Google Colab", "ChatGPT / Copilot"],
+      days: [
+        "Learn evaluation metrics: accuracy, precision, recall, and F1-score.",
+        "Generate a confusion matrix and interpret the results.",
+        "Compare multiple models, such as logistic regression vs. random forest.",
+        "Tune hyperparameters to try to improve model performance.",
+        "Document final model performance and the improvement process."
+      ],
+      deliverable: "A model comparison report showing at least 2 models, their metrics, and the chosen final model with justification.",
+      quiz: {
+        question: "Which metric measures the proportion of correctly predicted failures out of all failures the model predicted?",
+        options: ["Recall", "Precision", "Accuracy", "F1-score"],
+        correct: 1
+      }
+    },
+    {
+      title: "Final AI Maintenance Advisor Demo",
+      goal: "Combine all skills into a final \"AI Maintenance Advisor\" presentation demonstrating the full predictive maintenance workflow.",
+      tools: ["PowerPoint", "Power BI Desktop", "Google Colab", "ChatGPT / Copilot"],
+      days: [
+        "Consolidate notebook results, dashboard visuals, and model outputs.",
+        "Build the structure of the final PowerPoint presentation.",
+        "Design the demo flow: problem, data, model, dashboard, and business impact.",
+        "Rehearse the presentation and refine it using AI-assisted feedback.",
+        "Deliver the final demo day presentation to stakeholders or faculty."
+      ],
+      deliverable: "A final PowerPoint presentation plus a live demo of the AI Maintenance Advisor, combining model predictions with Power BI dashboard insights.",
+      quiz: {
+        question: "What is the primary goal of the Week 7 Final Demo?",
+        options: [
+          "To learn a new programming language",
+          "To present a complete predictive maintenance solution combining data, model, and dashboard insights",
+          "To grade other students' work",
+          "To install new software"
+        ],
+        correct: 1
+      }
+    }
+  ];
+
+  var state = {
+    completed: [false, false, false, false, false, false, false],
+    currentWeek: 0
+  };
+
+  function loadState(){
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        if (parsed && Array.isArray(parsed.completed) && parsed.completed.length === WEEKS.length) {
+          state.completed = parsed.completed;
+        }
+        if (parsed && typeof parsed.currentWeek === "number" && parsed.currentWeek >= 0 && parsed.currentWeek < WEEKS.length) {
+          state.currentWeek = parsed.currentWeek;
+        }
+      }
+    } catch (e) {
+      console.warn("Could not read saved progress:", e);
+    }
+  }
+
+  function saveState(){
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      console.warn("Could not save progress:", e);
+    }
+  }
+
+  function completedCount(){
+    return state.completed.filter(Boolean).length;
+  }
+
+  function renderProgress(){
+    var count = completedCount();
+    var percent = Math.round((count / WEEKS.length) * 100);
+    document.getElementById("progressFill").style.width = percent + "%";
+    document.getElementById("progressText").textContent = count + "/" + WEEKS.length + " weeks completed";
+    document.getElementById("progressPercent").textContent = percent + "%";
+  }
+
+  function renderTabs(){
+    var container = document.getElementById("tabsContainer");
+    container.innerHTML = "";
+    WEEKS.forEach(function(week, index){
+      var btn = document.createElement("button");
+      btn.className = "tab-btn";
+      if (index === state.currentWeek) btn.className += " active";
+      if (state.completed[index]) btn.className += " completed";
+      btn.innerHTML = "Week " + (index + 1) + (state.completed[index] ? ' <span class="checkmark">&#10003;</span>' : "");
+      btn.addEventListener("click", function(){
+        goToWeek(index);
+      });
+      container.appendChild(btn);
+    });
+  }
+
+  function renderWeek(){
+    var week = WEEKS[state.currentWeek];
+    var index = state.currentWeek;
+    var container = document.getElementById("weekContent");
+
+    var html = '<div class="card">';
+    html += '<div class="week-number">Week ' + (index + 1) + ' of ' + WEEKS.length + '</div>';
+    html += '<div class="week-header"><h2>' + escapeHtml(week.title) + '</h2></div>';
+    html += '<p class="goal"><strong>Main Goal:</strong> ' + escapeHtml(week.goal) + '</p>';
+
+    html += '<h3 class="section-title">Tools Used</h3>';
+    html += '<div class="tools-row">';
+    week.tools.forEach(function(tool){
+      html += '<span class="tool-chip">' + escapeHtml(tool) + '</span>';
+    });
+    html += '</div>';
+
+    html += '<h3 class="section-title">Daily Activities</h3>';
+    html += '<div class="day-list">';
+    week.days.forEach(function(day, i){
+      html += '<div class="day-item"><span class="day-badge">Day ' + (i + 1) + '</span><span class="day-text">' + escapeHtml(day) + '</span></div>';
+    });
+    html += '</div>';
+
+    html += '<h3 class="section-title">Deliverable</h3>';
+    html += '<div class="deliverable-box"><strong>Submit:</strong> ' + escapeHtml(week.deliverable) + '</div>';
+
+    if (week.promptLibrary) {
+      html += '<h3 class="section-title">Maintenance Prompt Library</h3>';
+      html += '<div class="prompt-list">';
+      week.promptLibrary.forEach(function(prompt, i){
+        html += '<div class="prompt-item"><span class="prompt-num">' + (i + 1) + '</span><span class="prompt-text">' + escapeHtml(prompt) + '</span></div>';
+      });
+      html += '</div>';
+    }
+
+    html += '<h3 class="section-title">Quick Check</h3>';
+    html += '<div class="quiz-question">' + escapeHtml(week.quiz.question) + '</div>';
+    html += '<div class="quiz-options" id="quizOptions" data-correct="' + week.quiz.correct + '">';
+    week.quiz.options.forEach(function(opt, i){
+      html += '<button class="quiz-option" data-index="' + i + '">' + escapeHtml(opt) + '</button>';
+    });
+    html += '</div>';
+    html += '<div class="quiz-feedback" id="quizFeedback"></div>';
+
+    html += '<div class="actions-row">';
+    html += '<button class="complete-btn' + (state.completed[index] ? ' is-completed' : '') + '" id="completeBtn">';
+    html += state.completed[index] ? "✓ Marked as Completed" : "Mark as Completed";
+    html += '</button>';
+    html += '<div class="nav-buttons">';
+    html += '<button class="nav-btn" id="prevBtn"' + (index === 0 ? ' disabled' : '') + '>&larr; Previous Week</button>';
+    html += '<button class="nav-btn" id="nextBtn"' + (index === WEEKS.length - 1 ? ' disabled' : '') + '>Next Week &rarr;</button>';
+    html += '</div>';
+    html += '</div>';
+
+    html += '</div>';
+
+    container.innerHTML = html;
+
+    attachWeekEvents();
+  }
+
+  function attachWeekEvents(){
+    var completeBtn = document.getElementById("completeBtn");
+    completeBtn.addEventListener("click", function(){
+      state.completed[state.currentWeek] = !state.completed[state.currentWeek];
+      saveState();
+      renderTabs();
+      renderProgress();
+      renderWeek();
+    });
+
+    var prevBtn = document.getElementById("prevBtn");
+    prevBtn.addEventListener("click", function(){
+      if (state.currentWeek > 0) goToWeek(state.currentWeek - 1);
+    });
+
+    var nextBtn = document.getElementById("nextBtn");
+    nextBtn.addEventListener("click", function(){
+      if (state.currentWeek < WEEKS.length - 1) goToWeek(state.currentWeek + 1);
+    });
+
+    var quizOptions = document.getElementById("quizOptions");
+    var correctIndex = parseInt(quizOptions.getAttribute("data-correct"), 10);
+    var feedback = document.getElementById("quizFeedback");
+    var buttons = quizOptions.querySelectorAll(".quiz-option");
+
+    buttons.forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var chosenIndex = parseInt(btn.getAttribute("data-index"), 10);
+        buttons.forEach(function(b){ b.disabled = true; });
+
+        if (chosenIndex === correctIndex) {
+          btn.classList.add("correct");
+          feedback.textContent = "Correct! Nice work.";
+          feedback.className = "quiz-feedback correct-text";
+        } else {
+          btn.classList.add("incorrect");
+          buttons[correctIndex].classList.add("correct");
+          feedback.textContent = "Not quite. The correct answer is highlighted above.";
+          feedback.className = "quiz-feedback incorrect-text";
+        }
+      });
+    });
+  }
+
+  function goToWeek(index){
+    state.currentWeek = index;
+    saveState();
+    renderTabs();
+    renderWeek();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function escapeHtml(str){
+    var div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  document.getElementById("resetBtn").addEventListener("click", function(){
+    var confirmed = window.confirm("Are you sure you want to reset all progress? This cannot be undone.");
+    if (confirmed) {
+      state.completed = WEEKS.map(function(){ return false; });
+      state.currentWeek = 0;
+      saveState();
+      renderTabs();
+      renderProgress();
+      renderWeek();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  });
+
+  loadState();
+  renderTabs();
+  renderProgress();
+  renderWeek();
+
+})();
+</script>
+
+</body>
+</html>

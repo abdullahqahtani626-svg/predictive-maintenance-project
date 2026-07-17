@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Predictive Maintenance Project | 7-Week Interactive Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c231f;
+    --ink-soft:#4c564e;
+    --paper:#f4f2ea;
+    --paper-2:#ffffff;
+    --line:#d8d4c4;
+    --gear:#2c5f4f;
+    --gear-dark:#183d31;
+    --gear-light:#e4efe9;
+    --rust:#b5502e;
+    --rust-light:#f6e5dd;
+    --amber:#c98a1f;
+    --amber-light:#faedd3;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    line-height:1.7;
+  }
+  code, .mono{ font-family:'IBM Plex Mono', monospace; }
+
+  .hero{
+    background:var(--gear-dark);
+    color:#f2f0e6;
+    padding:56px 24px 72px;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero::after{
+    content:"";
+    position:absolute;
+    right:-60px; bottom:-80px;
+    width:260px; height:260px;
+    border-radius:50%;
+    border:28px solid rgba(244,242,234,0.06);
+  }
+  .hero-inner{max-width:920px; margin:0 auto; position:relative; z-index:1;}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    letter-spacing:1px;
+    color:#9fd6bf;
+    margin:0 0 12px;
+    text-transform:uppercase;
+  }
+  .hero h1{
+    font-size:clamp(28px,4vw,44px);
+    font-weight:900;
+    margin:0 0 14px;
+  }
+  .hero p{
+    font-size:17px;
+    color:#cfd6cf;
+    max-width:640px;
+    margin:0;
+  }
+  .hero-stats{
+    display:flex; gap:14px; flex-wrap:wrap;
+    margin-top:32px;
+  }
+  .hstat{
+    background:rgba(244,242,234,0.08);
+    border:1px solid rgba(244,242,234,0.15);
+    border-radius:10px;
+    padding:10px 18px;
+    font-size:14px;
+  }
+  .hstat b{display:block; font-size:20px; font-weight:900; color:#fff;}
+
+  .progress-wrap{
+    max-width:920px; margin:-38px auto 0; padding:0 24px; position:relative; z-index:2;
+  }
+  .progress-card{
+    background:var(--paper-2);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:18px 22px;
+    display:flex; align-items:center; gap:18px;
+    box-shadow:0 10px 24px rgba(24,61,49,0.08);
+  }
+  .progress-card span.lbl{font-size:14px; color:var(--ink-soft); white-space:nowrap;}
+  .bar-track{flex:1; height:10px; background:var(--line); border-radius:6px; overflow:hidden;}
+  .bar-fill{height:100%; width:0%; background:linear-gradient(90deg,var(--gear),#3f8d70); transition:width .3s ease;}
+  .progress-card span.pct{font-family:'IBM Plex Mono',monospace; font-size:14px; font-weight:500; min-width:42px; text-align:right;}
+
+  .weeknav{
+    max-width:920px; margin:26px auto 0; padding:0 24px;
+    display:flex; gap:8px; flex-wrap:wrap;
+  }
+  .weeknav button{
+    font-family:'Inter',sans-serif;
+    font-size:14px; font-weight:500;
+    padding:9px 16px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:var(--paper-2);
+    color:var(--ink-soft);
+    cursor:pointer;
+    transition:.15s ease;
+  }
+  .weeknav button.active{
+    background:var(--gear); color:#fff; border-color:var(--gear);
+  }
+  .weeknav button:hover:not(.active){ border-color:var(--gear); color:var(--gear); }
+
+  main{max-width:920px; margin:0 auto; padding:34px 24px 80px;}
+
+  .week-block{ display:none; }
+  .week-block.active{ display:block; }
+
+  .week-head{
+    display:flex; align-items:baseline; gap:12px;
+    border-bottom:2px solid var(--gear); padding-bottom:14px; margin-bottom:6px;
+  }
+  .week-num{
+    font-family:'IBM Plex Mono',monospace;
+    background:var(--gear); color:#fff;
+    font-size:13px; padding:4px 10px; border-radius:6px;
+  }
+  .week-head h2{ font-size:22px; font-weight:900; margin:0; }
+  .week-goal{ color:var(--ink-soft); font-size:15px; margin:10px 0 26px; }
+
+  .day{
+    background:var(--paper-2);
+    border:1px solid var(--line);
+    border-radius:12px;
+    margin-bottom:12px;
+    overflow:hidden;
+  }
+  .day-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 18px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .day-head:hover{ background:var(--gear-light); }
+  .day-title{ display:flex; align-items:center; gap:12px; }
+  .day-badge{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px; font-weight:500;
+    width:30px; height:30px; border-radius:50%;
+    background:var(--gear-light); color:var(--gear-dark);
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .day-badge.done{ background:var(--gear); color:#fff; }
+  .day-title h3{ font-size:16px; font-weight:700; margin:0; }
+  .chev{ transition:transform .2s ease; color:var(--ink-soft); font-size:14px; }
+  .day.open .chev{ transform:rotate(180deg); }
+
+  .day-body{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .25s ease;
+    padding:0 18px;
+  }
+  .day.open .day-body{ padding:0 18px 20px; }
+
+  .day-body ul{ margin:10px 0; padding-inline-start:20px; }
+  .day-body li{ margin-bottom:6px; font-size:14.5px; }
+
+  .code-block{
+    background:var(--gear-dark);
+    color:#e6f0eb;
+    border-radius:8px;
+    padding:14px 16px;
+    font-size:13px;
+    text-align:left;
+    overflow-x:auto;
+    margin:10px 0;
+    white-space:pre;
+  }
+  .note{
+    background:var(--amber-light);
+    border-inline-start:3px solid var(--amber);
+    border-radius:0 8px 8px 0;
+    padding:10px 14px;
+    font-size:14px;
+    margin:12px 0;
+  }
+  .deliverable{
+    background:var(--rust-light);
+    border-inline-start:3px solid var(--rust);
+    border-radius:0 8px 8px 0;
+    padding:14px 18px;
+    font-size:14.5px;
+    margin-top:18px;
+  }
+  .deliverable b{ color:var(--rust); }
+
+  .checkbtn{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    background:transparent;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:6px 12px;
+    cursor:pointer;
+    color:var(--ink-soft);
+    margin-top:4px;
+  }
+  .checkbtn.on{ background:var(--gear); color:#fff; border-color:var(--gear); }
+
+  footer{
+    text-align:center; color:var(--ink-soft); font-size:13px;
+    padding:30px 24px 50px;
+  }
+  @media(max-width:600px){
+    .hero{padding:44px 18px 60px;}
+    .progress-card{flex-wrap:wrap;}
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <p class="eyebrow">AI Co-op Internship — Predictive Maintenance Track</p>
+    <h1>Your interactive step-by-step guide</h1>
+    <p>From Day 1 of Week 1 to the final day of Week 7 — every day has a clear goal, practical steps, and ready-to-run code.</p>
+    <div class="hero-stats">
+      <div class="hstat"><b>7</b>Weeks</div>
+      <div class="hstat"><b>35</b>Training days</div>
+      <div class="hstat"><b>Colab + Power BI</b>Environment</div>
+    </div>
+  </div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-card">
+    <span class="lbl">Your progress</span>
+    <div class="bar-track"><div class="bar-fill" id="barFill"></div></div>
+    <span class="pct" id="pctLabel">0%</span>
+  </div>
+</div>
+
+<div class="weeknav" id="weekNav"></div>
+
+<main id="weeksContainer"></main>
+
+<footer>Click any day to expand it, and mark it "Done" to track your progress. Progress is only saved for the current browser session.</footer>
+
+<script>
+const DATA = [
+{
+  title: "Week 1 — Predictive Maintenance Foundations and Maintenance Intelligence",
+  goal: "Understand predictive maintenance, equipment failures, sensor data, and how AI supports maintenance decisions.",
+  days: [
+    {t:"Day 1 — Introduction to Predictive Maintenance", items:[
+      "Learn what predictive maintenance means and why industries rely on it.",
+      "Understand the difference between predictive, preventive, and reactive maintenance."
+    ], note:"No code today — the focus is purely conceptual."},
+    {t:"Day 2 — Equipment and Sensor Data", items:[
+      "Learn the core fields: air temperature, process temperature, torque, vibration, tool wear.",
+      "Understand how each field signals equipment condition."
+    ]},
+    {t:"Day 3 — Failure Investigation Workshop", items:[
+      "Take 2–3 sample equipment reading cases.",
+      "Use ChatGPT/Copilot to analyze each case and assess failure risk."
+    ], code:`equipment_case = {
+    'Air_Temp_C': 38,
+    'Process_Temp_C': 49,
+    'Torque_Nm': 58,
+    'Vibration_mm_s': 6.1,
+    'Tool_Wear_Min': 210
+}
+for key, value in equipment_case.items():
+    print(key, ':', value)
+# Ask ChatGPT/Copilot: does this case look risky, and why?`},
+    {t:"Day 4 — Build the Maintenance Prompt Library", items:[
+      "Write 10 prompts to analyze sensor readings and generate maintenance recommendations.",
+      "Use the examples in Section 8 of the plan as a starting point."
+    ]},
+    {t:"Day 5 — Present and Deliver", items:[
+      "Present the dataset understanding report with 5 key variables.",
+      "Present 3 failure scenarios and 10 maintenance prompts."
+    ]}
+  ],
+  deliverable: "Dataset understanding report, 3 failure scenarios, a 10-prompt maintenance library, and an initial Maintenance Advisor concept."
+},
+{
+  title: "Week 2 — Python Fundamentals in Google Colab",
+  goal: "Learn the basic Python skills needed for the project inside Google Colab.",
+  days: [
+    {t:"Day 1 — Getting Familiar with Colab", items:[
+      "Open colab.research.google.com and create a new notebook.",
+      "Learn about code cells, text cells, and the run button.",
+      "Try uploading the dataset file via the Files icon."
+    ], code:`print("Hello Predictive Maintenance")`},
+    {t:"Day 2 — Variables, Numbers, and Strings", items:[
+      "Practice creating numeric and string variables.",
+      "Use print() to display values and results."
+    ], code:`air_temp = 38
+process_temp = 49
+equipment_type = "Pump"
+print("Air Temperature:", air_temp)
+temp_difference = process_temp - air_temp
+print("Temperature Difference:", temp_difference)`},
+    {t:"Day 3 — Lists and Dictionaries", items:[
+      "Practice lists and dictionaries.",
+      "Apply them to real equipment reading examples."
+    ], code:`readings = [38, 49, 58, 6.1, 210]
+equipment = {'type': 'Pump', 'temp': 38, 'vibration': 6.1}
+print(equipment['type'], equipment['vibration'])`},
+    {t:"Day 4 — Loops and Functions", items:[
+      "Practice for loops and if statements using risk-threshold examples.",
+      "Write a simple function that flags a risky reading."
+    ], code:`def check_risk(temperature, vibration):
+    if temperature > 35 or vibration > 5:
+        return 'Potential risk detected'
+    return 'Normal condition'
+
+print(check_risk(38, 6.1))`},
+    {t:"Day 5 — Complete the Practice Notebook", items:[
+      "Finish the Python basics practice notebook.",
+      "Add a short explanation under each code block."
+    ]}
+  ],
+  deliverable: "Python basics notebook with exercises tied to maintenance data."
+},
+{
+  title: "Week 3 — Data Analytics with Python",
+  goal: "Read, clean, and explore the predictive maintenance dataset using Pandas.",
+  days: [
+    {t:"Day 1 — Reading the Excel Dataset", items:[
+      "Use Pandas to load the dataset and inspect the first rows."
+    ], code:`import pandas as pd
+file_path = 'Predictive_Maintenance_Training_Dataset_7_Week.xlsx'
+df = pd.read_excel(file_path, sheet_name='Training_Dataset')
+df.head()`},
+    {t:"Day 2 — Data Types and Missing Values", items:[
+      "Check column types, missing values, duplicates, and basic statistics."
+    ], code:`df.info()
+df.describe()
+df.isnull().sum()
+df.duplicated().sum()`},
+    {t:"Day 3 — Exploring Key Columns", items:[
+      "Explore Machine_Failure, Failure_Type, Risk_Level, Vibration, Torque, and Tool_Wear_Min."
+    ], code:`df['Machine_Failure'].value_counts()
+df['Risk_Level'].value_counts()`},
+    {t:"Day 4 — Grouping and Filtering", items:[
+      "Group the data by equipment type to understand failure patterns."
+    ], code:`df.groupby('Equipment_Type')['Machine_Failure'].mean().sort_values(ascending=False)`},
+    {t:"Day 5 — Summarize Your Understanding", items:[
+      "Prepare a clean EDA notebook and summarize what each field means."
+    ]}
+  ],
+  deliverable: "EDA notebook and a data understanding summary."
+},
+{
+  title: "Week 4 — Visualization, Power BI Dashboard, and Business Insights",
+  goal: "Create Python charts and a basic Power BI dashboard to communicate maintenance insights.",
+  days: [
+    {t:"Day 1 — Basic Matplotlib Charts", items:[
+      "Chart machine failure distribution and failure rate by equipment type."
+    ], code:`import matplotlib.pyplot as plt
+df['Machine_Failure'].value_counts().plot(kind='bar')
+plt.title('Machine Failure Distribution')
+plt.show()
+
+df.groupby('Equipment_Type')['Machine_Failure'].mean().plot(kind='bar')
+plt.title('Failure Rate by Equipment Type')
+plt.show()`},
+    {t:"Day 2 — Open the Dataset in Power BI", items:[
+      "Open Power BI Desktop and load the Training_Dataset table from the Excel file."
+    ]},
+    {t:"Day 3 — Build a Basic Power BI Dashboard", items:[
+      "Build an Overview page, a Failure Analysis page, and a Sensor Insights page (see Section 6 of the plan)."
+    ]},
+    {t:"Day 4 — Write Business Insights", items:[
+      "Write 5 to 10 business insights based on both Colab charts and Power BI visuals."
+    ]},
+    {t:"Day 5 — Present", items:[
+      "Present the Power BI dashboard and explain the most important maintenance insights."
+    ]}
+  ],
+  deliverable: "Visualization notebook, Power BI dashboard, and 5–10 business insights."
+},
+{
+  title: "Week 5 — Machine Learning for Failure Prediction",
+  goal: "Train simple models to predict machine failure (Machine_Failure).",
+  days: [
+    {t:"Day 1 — Define Features and Target", items:[
+      "Identify the input features and the target variable Machine_Failure."
+    ], code:`features = ['Equipment_Type','Quality_Type','Air_Temp_C','Process_Temp_C',
+            'Rotational_Speed_RPM','Torque_Nm','Tool_Wear_Min','Vibration_mm_s','Pressure_bar']
+target = 'Machine_Failure'
+X = df[features]
+y = df[target]`},
+    {t:"Day 2 — Prepare the Data for Modeling", items:[
+      "Encode categorical columns and split the data into train/test sets."
+    ], code:`from sklearn.model_selection import train_test_split
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder
+
+categorical = ['Equipment_Type','Quality_Type']
+numeric = [c for c in features if c not in categorical]
+preprocess = ColumnTransformer([
+    ('cat', OneHotEncoder(handle_unknown='ignore'), categorical),
+    ('num', 'passthrough', numeric)
+])
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)`},
+    {t:"Day 3 — Baseline Decision Tree", items:[
+      "Train a Decision Tree model as a simple baseline."
+    ], code:`from sklearn.pipeline import Pipeline
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix
+
+baseline = Pipeline([('preprocess', preprocess),
+                      ('classifier', DecisionTreeClassifier(random_state=42, class_weight='balanced'))])
+baseline.fit(X_train, y_train)
+pred = baseline.predict(X_test)
+print('Baseline Accuracy:', accuracy_score(y_test, pred))`},
+    {t:"Day 4 — Random Forest Model", items:[
+      "Train a Random Forest model and compare it against the baseline."
+    ], code:`from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report
+
+model = Pipeline([('preprocess', preprocess),
+                   ('classifier', RandomForestClassifier(n_estimators=150, random_state=42, class_weight='balanced'))])
+model.fit(X_train, y_train)
+pred = model.predict(X_test)
+print('Random Forest Accuracy:', accuracy_score(y_test, pred))
+print(classification_report(y_test, pred))`},
+    {t:"Day 5 — Initial Evaluation", items:[
+      "Evaluate the model using Accuracy, Precision, Recall, and the confusion matrix."
+    ], code:`print(confusion_matrix(y_test, pred))`}
+  ],
+  deliverable: "Decision Tree baseline, Random Forest model, and an initial evaluation summary."
+},
+{
+  title: "Week 6 — Evaluation and Optimization",
+  goal: "Evaluate model performance, analyze errors, improve features/settings, and finalize the recommendation logic.",
+  days: [
+    {t:"Day 1 — Understand Evaluation Metrics", items:[
+      "Explain Accuracy, Precision, Recall, and the confusion matrix in maintenance terms."
+    ]},
+    {t:"Day 2 — Error Analysis", items:[
+      "Analyze false positives and false negatives.",
+      "Discuss which error type is more critical for maintenance decisions."
+    ], note:"In predictive maintenance, a false negative (missing a real failure) is usually more dangerous than a false positive."},
+    {t:"Day 3 — Improve the Feature Set", items:[
+      "Try different input variables and observe their impact on results."
+    ]},
+    {t:"Day 4 — Tune Random Forest Settings", items:[
+      "Try different tree counts and depths, and compare before/after results."
+    ], code:`optimized_model = Pipeline([('preprocess', preprocess),
+    ('classifier', RandomForestClassifier(n_estimators=300, max_depth=8, random_state=42, class_weight='balanced'))])
+optimized_model.fit(X_train, y_train)
+opt_pred = optimized_model.predict(X_test)
+print('Optimized Accuracy:', accuracy_score(y_test, opt_pred))
+print(confusion_matrix(y_test, opt_pred))`},
+    {t:"Day 5 — Finalize the Recommendation Logic", items:[
+      "Link failure probability to risk level and a recommendation.",
+      "Write a short evaluation and optimization report."
+    ], code:`if probability >= 0.7:
+    print('Recommendation: Immediate inspection recommended.')
+elif probability >= 0.4:
+    print('Recommendation: Schedule preventive inspection.')
+else:
+    print('Recommendation: Continue normal monitoring.')`}
+  ],
+  deliverable: "Model evaluation report, before/after comparison, improved model results, and final recommendation logic."
+},
+{
+  title: "Week 7 — Final AI Maintenance Advisor Demo",
+  goal: "Combine the ML model, Power BI dashboard, recommendation logic, and final presentation.",
+  days: [
+    {t:"Day 1 — Prepare the Final Demo Input Section", items:[
+      "Build an input section that lets you change equipment readings manually."
+    ]},
+    {t:"Day 2 — Connect the Optimized Model to the Demo", items:[
+      "Show prediction, probability, risk level, and recommendation together."
+    ], code:`sample = pd.DataFrame([{
+    'Equipment_Type': 'Pump', 'Quality_Type': 'Low',
+    'Air_Temp_C': 38.0, 'Process_Temp_C': 49.0,
+    'Rotational_Speed_RPM': 1320, 'Torque_Nm': 58.0,
+    'Tool_Wear_Min': 210, 'Vibration_mm_s': 6.1, 'Pressure_bar': 13.5
+}])
+prediction = optimized_model.predict(sample)[0]
+probability = optimized_model.predict_proba(sample)[0][1]
+print('Prediction:', 'Failure' if prediction == 1 else 'No Failure')
+print('Failure Probability:', round(probability*100,1), '%')`},
+    {t:"Day 3 — Finalize the Power BI Dashboard", items:[
+      "Capture dashboard screenshots for the presentation."
+    ]},
+    {t:"Day 4 — Prepare the Final Presentation", items:[
+      "Build a 5–7 slide deck: problem statement, dataset overview, insights, ML model, optimization, dashboard, and demo results."
+    ]},
+    {t:"Day 5 — Live Demo and Final Delivery", items:[
+      "Deliver the live demo and a project learning summary."
+    ]}
+  ],
+  deliverable: "Final Colab demo, Power BI dashboard screenshots, a live demo, and a 5–7 slide presentation."
+}
+];
+
+const nav = document.getElementById('weekNav');
+const container = document.getElementById('weeksContainer');
+const totalDays = DATA.reduce((s,w)=>s+w.days.length,0);
+const doneSet = new Set();
+
+DATA.forEach((week, wi)=>{
+  const btn = document.createElement('button');
+  btn.textContent = 'Week ' + (wi+1);
+  btn.className = wi===0 ? 'active' : '';
+  btn.onclick = ()=> showWeek(wi);
+  nav.appendChild(btn);
+
+  const block = document.createElement('div');
+  block.className = 'week-block' + (wi===0 ? ' active':'');
+  block.id = 'week-'+wi;
+
+  let daysHtml = '';
+  week.days.forEach((day, di)=>{
+    const dayId = wi+'-'+di;
+    daysHtml += `
+    <div class="day" id="day-${dayId}">
+      <div class="day-head" onclick="toggleDay('${dayId}')">
+        <div class="day-title">
+          <div class="day-badge" id="badge-${dayId}">${di+1}</div>
+          <h3>${day.t}</h3>
+        </div>
+        <span class="chev">&#9662;</span>
+      </div>
+      <div class="day-body">
+        <ul>${day.items.map(it=>`<li>${it}</li>`).join('')}</ul>
+        ${day.code ? `<div class="code-block">${escapeHtml(day.code)}</div>` : ''}
+        ${day.note ? `<div class="note">${day.note}</div>` : ''}
+        <button class="checkbtn" onclick="toggleDone(event,'${dayId}')" id="check-${dayId}">Mark done &#10003;</button>
+      </div>
+    </div>`;
+  });
+
+  block.innerHTML = `
+    <div class="week-head">
+      <span class="week-num">W${wi+1}</span>
+      <h2>${week.title}</h2>
+    </div>
+    <p class="week-goal">${week.goal}</p>
+    ${daysHtml}
+    <div class="deliverable"><b>Deliverable: </b>${week.deliverable}</div>
+  `;
+  container.appendChild(block);
+});
+
+function showWeek(idx){
+  document.querySelectorAll('.week-block').forEach((el,i)=> el.classList.toggle('active', i===idx));
+  document.querySelectorAll('#weekNav button').forEach((el,i)=> el.classList.toggle('active', i===idx));
+}
+
+function toggleDay(id){
+  const el = document.getElementById('day-'+id);
+  const body = el.querySelector('.day-body');
+  el.classList.toggle('open');
+  if(el.classList.contains('open')){
+    body.style.maxHeight = body.scrollHeight + 40 + 'px';
+  } else {
+    body.style.maxHeight = 0;
+  }
+}
+
+function toggleDone(evt, id){
+  evt.stopPropagation();
+  const badge = document.getElementById('badge-'+id);
+  const check = document.getElementById('check-'+id);
+  if(doneSet.has(id)){
+    doneSet.delete(id);
+    badge.classList.remove('done');
+    check.classList.remove('on');
+  } else {
+    doneSet.add(id);
+    badge.classList.add('done');
+    check.classList.add('on');
+  }
+  updateProgress();
+}
+
+function updateProgress(){
+  const pct = Math.round((doneSet.size / totalDays) * 100);
+  document.getElementById('barFill').style.width = pct + '%';
+  document.getElementById('pctLabel').textContent = pct + '%';
+}
+
+function escapeHtml(str){
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>
