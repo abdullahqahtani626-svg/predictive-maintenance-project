@@ -50,10 +50,8 @@
       padding: 24px 18px 40px;
     }
 
-     .program-header {
-     background: linear-gradient(135deg, rgba(31,78,121,0.55), rgba(44,110,163,0.55)), url('header-bg.png');
-background-size: cover;
-background-position: center 30%;
+    .program-header {
+      background: linear-gradient(135deg, var(--primary) 0%, #2C6EA3 100%);
       color: #FFFFFF;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
@@ -208,6 +206,35 @@ background-position: center 30%;
       background: linear-gradient(90deg, var(--primary), #2D79B4);
       border-radius: 999px;
       transition: width 240ms ease;
+    }
+
+    .student-name-row {
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .student-name-row label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .student-name-row input {
+      flex: 1 1 220px;
+      min-width: 180px;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font: inherit;
+      color: var(--text);
+    }
+
+    .report-button {
+      border: none;
+      margin-top: 10px;
     }
 
     .toolbar {
@@ -841,6 +868,10 @@ background-position: center 30%;
       <div class="progress-track" aria-hidden="true">
         <div class="progress-fill" id="progressFill"></div>
       </div>
+      <div class="student-name-row">
+        <label for="studentNameInput">Student name</label>
+        <input type="text" id="studentNameInput" placeholder="Type your name...">
+      </div>
     </section>
 
     <div class="toolbar">
@@ -855,6 +886,7 @@ background-position: center 30%;
         <h3>Weekly Milestones</h3>
         <ul class="milestone-list" id="milestoneList"></ul>
         <a class="guide-button" href="https://abdullahqahtani626-svg.github.io/predictive-maintenance-project/predictive_maintenance_interactive_guide.html" target="_blank" rel="noopener">Interactive Guide</a>
+        <button class="guide-button report-button" id="submitReport" type="button">Submit Final Report</button>
       </aside>
     </main>
   </div>
@@ -863,7 +895,21 @@ background-position: center 30%;
     const STORAGE_KEY = "coop_completed";
     // Replace this with your Microsoft Forms link (with a File Upload question) once created.
     // Students pick their week inside the form and upload their deliverable file there.
-    const DELIVERABLE_FORM_URL = "https://forms.office.com/Pages/ResponsePage.aspx?id=ew9KJdgRQk6X1i3wLci23-8ObhdFSDZLq8oUVhvqGcZUN1ZTSTM3T1JIUkgxODcxUFVITE40TEFaRy4u";
+    const DELIVERABLE_FORM_URL = "PUT_YOUR_MICROSOFT_FORM_LINK_HERE";
+
+    // Final report submission (Microsoft Forms with pre-filled answers enabled).
+    // 1. Create a form with fields: Student Name, Weeks Completed, Quiz Score, Answer Summary.
+    // 2. Turn on "Enable pre-filled answers" in the form settings.
+    // 3. Use "Get pre-filled URL", fill in dummy answers, and copy the generated link.
+    // 4. Copy the base link (before the "?") into REPORT_FORM_BASE, and copy each field's
+    //    parameter name (the part before "=" in the query string) into REPORT_FORM_PARAMS below.
+    const REPORT_FORM_BASE = "https://forms.office.com/Pages/ResponsePage.aspx?id=ew9KJdgRQk6X1i3wLci23-8ObhdFSDZLq8oUVhvqGcZUMEJSUE80MVBQU1cyMFhQU0ZMUzBRS1dORi4u";
+    const REPORT_FORM_PARAMS = {
+      name: "r9625b95c56b648afbf7f5c5ceca9d466",
+      weeksCompleted: "r310f7f7c0ce6466e84e46b078c249813",
+      score: "r815466d1be9a4344832929128b479abb",
+      summary: "rd960cb6a385a4c22b007f4c7572cf41e"
+    };
 
     const weeks = [
       {
@@ -1408,7 +1454,8 @@ background-position: center 30%;
     const defaultState = {
       completed: [],
       quizzes: {},
-      activeWeek: 0
+      activeWeek: 0,
+      studentName: ""
     };
 
     let state = loadState();
@@ -1419,6 +1466,8 @@ background-position: center 30%;
     const progressText = document.getElementById("progressText");
     const progressFill = document.getElementById("progressFill");
     const resetProgress = document.getElementById("resetProgress");
+    const studentNameInput = document.getElementById("studentNameInput");
+    const submitReportBtn = document.getElementById("submitReport");
 
     function loadState() {
       try {
@@ -1430,7 +1479,8 @@ background-position: center 30%;
         return {
           completed: Array.isArray(saved.completed) ? saved.completed : [],
           quizzes: saved.quizzes && typeof saved.quizzes === "object" ? saved.quizzes : {},
-          activeWeek: Number.isInteger(saved.activeWeek) ? clampWeek(saved.activeWeek) : 0
+          activeWeek: Number.isInteger(saved.activeWeek) ? clampWeek(saved.activeWeek) : 0,
+          studentName: typeof saved.studentName === "string" ? saved.studentName : ""
         };
       } catch (error) {
         return structuredClone(defaultState);
@@ -1654,8 +1704,69 @@ background-position: center 30%;
 
       state = structuredClone(defaultState);
       saveState();
+      studentNameInput.value = "";
       render();
       document.getElementById("top").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    studentNameInput.value = state.studentName || "";
+    studentNameInput.addEventListener("input", () => {
+      state.studentName = studentNameInput.value;
+      saveState();
+    });
+
+    function computeScoreSummary() {
+      let totalQuestions = 0;
+      let totalCorrect = 0;
+      const lines = [];
+
+      weeks.forEach((week, weekIndex) => {
+        const answers = state.quizzes[weekIndex] || {};
+        let weekCorrect = 0;
+
+        week.quizzes.forEach((quiz, quizIndex) => {
+          totalQuestions += 1;
+          const selected = answers[quizIndex];
+          const isCorrect = Number.isInteger(selected) && selected === quiz.answer;
+          if (isCorrect) {
+            totalCorrect += 1;
+            weekCorrect += 1;
+          }
+        });
+
+        lines.push(
+          "Week " + (weekIndex + 1) + " (" + shortTitle(week.title) + "): " +
+          weekCorrect + "/" + week.quizzes.length + " correct, " +
+          (isCompleted(weekIndex) ? "marked completed" : "not marked completed")
+        );
+      });
+
+      return {
+        totalQuestions: totalQuestions,
+        totalCorrect: totalCorrect,
+        weeksCompleted: state.completed.length,
+        weeksTotal: weeks.length,
+        summaryText: lines.join(" | ")
+      };
+    }
+
+    submitReportBtn.addEventListener("click", () => {
+      const name = (state.studentName || "").trim();
+      if (!name) {
+        window.alert("Please enter the student name before submitting the report.");
+        studentNameInput.focus();
+        return;
+      }
+
+      const report = computeScoreSummary();
+      const params = new URLSearchParams();
+      params.set(REPORT_FORM_PARAMS.name, name);
+      params.set(REPORT_FORM_PARAMS.weeksCompleted, report.weeksCompleted + "/" + report.weeksTotal);
+      params.set(REPORT_FORM_PARAMS.score, report.totalCorrect + "/" + report.totalQuestions);
+      params.set(REPORT_FORM_PARAMS.summary, report.summaryText);
+
+      const url = REPORT_FORM_BASE + "&" + params.toString();
+      window.open(url, "_blank", "noopener");
     });
 
     render();
