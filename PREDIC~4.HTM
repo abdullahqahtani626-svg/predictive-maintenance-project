@@ -50,7 +50,7 @@
       padding: 24px 18px 40px;
     }
 
-    .program-header {
+     .program-header {
      background: linear-gradient(135deg, rgba(31,78,121,0.55), rgba(44,110,163,0.55)), url('header-bg.png');
 background-size: cover;
 background-position: center 30%;
@@ -472,6 +472,24 @@ background-position: center 30%;
       font-weight: 700;
     }
 
+    .upload-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 14px;
+      padding: 10px 16px;
+      border-radius: var(--radius);
+      background: var(--primary);
+      color: #FFFFFF;
+      font-weight: 800;
+      text-decoration: none;
+      transition: transform 160ms ease, background 160ms ease;
+    }
+
+    .upload-button:hover {
+      transform: translateY(-1px);
+    }
+
     .prompt-library {
       display: none;
     }
@@ -843,6 +861,9 @@ background-position: center 30%;
 
   <script>
     const STORAGE_KEY = "coop_completed";
+    // Replace this with your Microsoft Forms link (with a File Upload question) once created.
+    // Students pick their week inside the form and upload their deliverable file there.
+    const DELIVERABLE_FORM_URL = "https://forms.office.com/Pages/ResponsePage.aspx?id=ew9KJdgRQk6X1i3wLci23-8ObhdFSDZLq8oUVhvqGcZUN1ZTSTM3T1JIUkgxODcxUFVITE40TEFaRy4u";
 
     const weeks = [
       {
@@ -1485,6 +1506,7 @@ background-position: center 30%;
         '<section class="content-card deliverable-card">',
         '<h3>Deliverable</h3>',
         '<p class="deliverable-text">' + escapeHtml(week.deliverable) + '</p>',
+        '<a class="upload-button" href="' + DELIVERABLE_FORM_URL + '" target="_blank" rel="noopener">Upload Your Work</a>',
         '</section>',
         '</div>',
         '<section class="content-card">',
