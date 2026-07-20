@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Co-op Predictive Maintenance Program</title>
+  <style>
+    :root {
+      --primary: #1F4E79;
+      --primary-dark: #183E61;
+      --primary-soft: #E7F0F8;
+      --background: #F4F7FB;
+      --surface: #FFFFFF;
+      --text: #1D2733;
+      --muted: #637083;
+      --border: #D8E0EA;
+      --success: #1D8A4C;
+      --success-soft: #E6F5EC;
+      --danger: #B42318;
+      --danger-soft: #FDE9E7;
+      --warning: #B7791F;
+      --shadow: 0 14px 34px rgba(31, 78, 121, 0.10);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--background);
+      color: var(--text);
+      font-family: "Segoe UI", Arial, sans-serif;
+      line-height: 1.5;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 24px 18px 40px;
+    }
+
+    .program-header {
+      background: linear-gradient(135deg, var(--primary) 0%, #2C6EA3 100%);
+      color: #FFFFFF;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 30px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: end;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.82);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3.6rem);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .header-copy {
+      max-width: 780px;
+      margin: 14px 0 0;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 1.02rem;
+    }
+
+    .header-stats {
+      min-width: 250px;
+      display: grid;
+      gap: 10px;
+      justify-items: end;
+    }
+
+    .stat-pill {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+    }
+
+    .stat-label {
+      display: block;
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .stat-value {
+      display: block;
+      margin-top: 2px;
+      font-size: 1.16rem;
+      font-weight: 800;
+    }
+
+    .signal-card {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      border-radius: var(--radius);
+      padding: 12px 14px 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .signal-title {
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .signal-row {
+      display: grid;
+      grid-template-columns: 72px minmax(0, 1fr) 36px;
+      gap: 8px;
+      align-items: center;
+      color: #FFFFFF;
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    .signal-track {
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.22);
+      overflow: hidden;
+    }
+
+    .signal-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: #F2C94C;
+    }
+
+    .signal-fill.alert {
+      background: #63D297;
+    }
+
+    .progress-card {
+      margin-top: 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .progress-title {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .progress-label {
+      color: var(--muted);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 14px;
+      background: #E7EDF5;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid #DCE5EF;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), #2D79B4);
+      border-radius: 999px;
+      transition: width 240ms ease;
+    }
+
+    .toolbar {
+      margin-top: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .week-tabs {
+      flex: 1 1 720px;
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .tab-button {
+      min-height: 54px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      display: grid;
+      justify-items: start;
+      align-content: center;
+      gap: 1px;
+      padding: 8px 10px;
+      box-shadow: 0 6px 18px rgba(31, 78, 121, 0.06);
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    .tab-button:hover {
+      transform: translateY(-1px);
+      border-color: #AFC2D5;
+    }
+
+    .tab-button.active {
+      background: var(--primary);
+      color: #FFFFFF;
+      border-color: var(--primary);
+    }
+
+    .tab-button.completed {
+      border-color: rgba(29, 138, 76, 0.38);
+    }
+
+    .tab-button.completed:not(.active) {
+      background: var(--success-soft);
+    }
+
+    .tab-week {
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tab-check {
+      display: none;
+      width: 17px;
+      height: 17px;
+      border-radius: 999px;
+      background: var(--success);
+      color: #FFFFFF;
+      font-size: 0.74rem;
+      line-height: 17px;
+      text-align: center;
+      font-weight: 900;
+    }
+
+    .tab-button.completed .tab-check {
+      display: inline-block;
+    }
+
+    .tab-title {
+      width: 100%;
+      font-size: 0.82rem;
+      font-weight: 700;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: inherit;
+      opacity: 0.86;
+    }
+
+    .reset-button,
+    .nav-button,
+    .complete-button {
+      min-height: 42px;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 9px 14px;
+      transition: background 160ms ease, color 160ms ease, border-color 160ms ease, transform 160ms ease;
+    }
+
+    .reset-button {
+      flex: 0 0 auto;
+      color: var(--primary);
+      background: #FFFFFF;
+      border-color: var(--border);
+    }
+
+    .reset-button:hover,
+    .nav-button:hover,
+    .complete-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: 18px;
+      margin-top: 18px;
+      align-items: start;
+    }
+
+    .side-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .week-panel {
+      display: grid;
+      gap: 18px;
+    }
+
+    .week-hero {
+      padding: 26px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      background:
+        linear-gradient(135deg, rgba(31, 78, 121, 0.08), rgba(31, 78, 121, 0)),
+        #FFFFFF;
+    }
+
+    .week-label {
+      margin: 0 0 8px;
+      color: var(--primary);
+      font-size: 0.78rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .week-title {
+      margin: 0;
+      color: var(--text);
+      font-size: clamp(1.7rem, 3vw, 2.45rem);
+      line-height: 1.16;
+      letter-spacing: 0;
+    }
+
+    .week-goal {
+      margin: 14px 0 0;
+      max-width: 780px;
+      color: var(--muted);
+      font-size: 1.02rem;
+    }
+
+    .week-body {
+      padding: 0;
+      display: grid;
+      gap: 18px;
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .content-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #FFFFFF;
+      padding: 18px;
+    }
+
+    .content-card h3,
+    .quiz-card h3,
+    .side-panel h3 {
+      margin: 0 0 12px;
+      color: var(--primary);
+      font-size: 1.02rem;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .tool-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .tool-chip {
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      border: 1px solid #CADDED;
+      padding: 7px 10px;
+      font-size: 0.88rem;
+      font-weight: 800;
+    }
+
+    .activity-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .activity-item {
+      display: grid;
+      grid-template-columns: 78px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid #E1E8F0;
+      border-radius: var(--radius);
+      background: #FAFCFE;
+    }
+
+    .day-label {
+      color: var(--primary);
+      font-weight: 900;
+      font-size: 0.88rem;
+    }
+
+    .activity-text {
+      color: var(--text);
+      min-width: 0;
+    }
+
+    .deliverable-card {
+      background: #F7FBFF;
+      border-color: #C9DDF0;
+    }
+
+    .deliverable-text {
+      margin: 0;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .prompt-library {
+      display: none;
+    }
+
+    .prompt-library.visible {
+      display: block;
+    }
+
+    .prompt-list {
+      margin: 0;
+      padding-left: 22px;
+      display: grid;
+      gap: 9px;
+      color: var(--text);
+    }
+
+    .prompt-list li {
+      padding-left: 4px;
+    }
+
+    .quiz-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #FFFFFF;
+      padding: 18px;
+    }
+
+    .quiz-card h3 {
+      margin: 0 0 14px;
+    }
+
+    .quiz-question-block {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .quiz-question-block:first-of-type {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+    }
+
+    .question-text {
+      margin: 0 0 14px;
+      color: var(--text);
+      font-weight: 800;
+    }
+
+    .quiz-options {
+      display: grid;
+      gap: 10px;
+    }
+
+    .quiz-option {
+      width: 100%;
+      min-height: 48px;
+      border: 1px solid var(--border);
+      background: #FFFFFF;
+      color: var(--text);
+      border-radius: var(--radius);
+      padding: 11px 12px;
+      text-align: left;
+      cursor: pointer;
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+      transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+    }
+
+    .quiz-option:hover {
+      transform: translateY(-1px);
+      border-color: #AFC2D5;
+    }
+
+    .option-letter {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: #EEF3F8;
+      color: var(--primary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.82rem;
+      font-weight: 900;
+    }
+
+    .quiz-option.correct {
+      border-color: rgba(29, 138, 76, 0.55);
+      background: var(--success-soft);
+    }
+
+    .quiz-option.correct .option-letter {
+      background: var(--success);
+      color: #FFFFFF;
+    }
+
+    .quiz-option.wrong {
+      border-color: rgba(180, 35, 24, 0.46);
+      background: var(--danger-soft);
+    }
+
+    .quiz-option.wrong .option-letter {
+      background: var(--danger);
+      color: #FFFFFF;
+    }
+
+    .feedback {
+      min-height: 46px;
+      margin-top: 12px;
+      border-radius: var(--radius);
+      padding: 11px 12px;
+      font-weight: 800;
+      display: none;
+    }
+
+    .feedback.visible {
+      display: block;
+    }
+
+    .feedback.correct {
+      background: var(--success-soft);
+      color: #0F6736;
+      border: 1px solid rgba(29, 138, 76, 0.35);
+    }
+
+    .feedback.wrong {
+      background: var(--danger-soft);
+      color: var(--danger);
+      border: 1px solid rgba(180, 35, 24, 0.28);
+    }
+
+    .week-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .nav-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .nav-button {
+      background: #FFFFFF;
+      border-color: var(--border);
+      color: var(--primary);
+    }
+
+    .nav-button:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+      transform: none;
+    }
+
+    .complete-button {
+      background: var(--primary);
+      color: #FFFFFF;
+      border-color: var(--primary);
+    }
+
+    .complete-button.completed {
+      background: var(--success);
+      border-color: var(--success);
+    }
+
+    .side-panel {
+      padding: 18px;
+      position: sticky;
+      top: 16px;
+    }
+
+    .milestone-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .milestone-item {
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .milestone-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: #E9EEF5;
+      color: var(--primary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.82rem;
+      font-weight: 900;
+    }
+
+    .milestone-item.done {
+      color: var(--text);
+    }
+
+    .milestone-item.done .milestone-dot {
+      background: var(--success);
+      color: #FFFFFF;
+    }
+
+    @media (max-width: 960px) {
+      .program-header {
+        grid-template-columns: 1fr;
+      }
+
+      .header-stats {
+        justify-items: stretch;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .week-tabs {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .main-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .side-panel {
+        position: static;
+      }
+
+      .section-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: 14px 12px 28px;
+      }
+
+      .program-header {
+        padding: 22px 18px;
+      }
+
+      .header-stats {
+        grid-template-columns: 1fr;
+      }
+
+      .progress-top,
+      .toolbar,
+      .week-actions {
+        align-items: stretch;
+      }
+
+      .progress-top {
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .week-tabs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .reset-button,
+      .complete-button,
+      .nav-button {
+        width: 100%;
+      }
+
+      .nav-group {
+        width: 100%;
+      }
+
+      .week-hero,
+      .week-actions {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .week-body {
+        gap: 14px;
+      }
+
+      .activity-item {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+
+      .quiz-option {
+        grid-template-columns: 28px minmax(0, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page" id="top">
+    <header class="program-header">
+      <div>
+        <p class="eyebrow">University AI Co-op Internship</p>
+        <h1>Predictive Maintenance</h1>
+        <p class="header-copy">A 7-week applied AI program that moves students from Colab and prompt-assisted analysis into Python analytics, machine learning, dashboards, and an AI maintenance advisor demo.</p>
+      </div>
+      <div class="header-stats" aria-label="Program summary">
+        <div class="stat-pill">
+          <span class="stat-label">Focus</span>
+          <span class="stat-value">Industrial AI</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="progress-card" aria-label="Program progress">
+      <div class="progress-top">
+        <h2 class="progress-title">Learning Progress</h2>
+        <span class="progress-label" id="progressText">0/7 weeks completed - 0%</span>
+      </div>
+      <div class="progress-track" aria-hidden="true">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </section>
+
+    <div class="toolbar">
+      <nav class="week-tabs" id="weekTabs" aria-label="Weeks"></nav>
+      <button class="reset-button" id="resetProgress" type="button">Reset Progress</button>
+    </div>
+
+    <main class="main-layout">
+      <article class="week-panel" id="weekPanel"></article>
+
+      <aside class="side-panel" aria-label="Completion overview">
+        <h3>Weekly Milestones</h3>
+        <ul class="milestone-list" id="milestoneList"></ul>
+      </aside>
+    </main>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "coop_completed";
+
+    const weeks = [
+      {
+        title: "Predictive Maintenance Foundations and Maintenance Intelligence",
+        goal: "Understand predictive maintenance as a business and engineering problem, then use prompt-assisted reasoning to explain equipment risk from basic sensor readings.",
+        tools: ["Google Colab", "ChatGPT / Copilot", "PowerPoint"],
+        activities: [
+          "Define reactive, preventive, and predictive maintenance using industrial examples.",
+          "Explore common equipment signals: temperature, vibration, torque, rotational speed, and tool wear.",
+          "Use ChatGPT / Copilot to interpret simple machine readings and identify early risk patterns.",
+          "Practice supervisor-ready maintenance summaries using clear operational language.",
+          "Create a mini briefing that connects maintenance intelligence to uptime, cost, and safety."
+        ],
+        deliverable: "Maintenance intelligence briefing with example sensor readings, risk classification, and a short supervisor summary.",
+        quizzes: [
+          {
+            question: "Which statement best describes predictive maintenance?",
+            options: [
+              "It uses equipment data to estimate failure risk before breakdowns happen.",
+              "It replaces every machine part on a fixed calendar schedule.",
+              "It repairs equipment only after production has stopped.",
+              "It removes the need for maintenance inspections."
+            ],
+            answer: 0,
+            correct: "Correct. Predictive maintenance uses data patterns to estimate risk early.",
+            wrong: "Not quite. Predictive maintenance is data-driven and aims to act before failure."
+          },
+          {
+            question: "Which of the following is NOT a common equipment signal used in predictive maintenance?",
+            options: [
+              "Temperature readings",
+              "Vibration levels",
+              "Employee attendance records",
+              "Tool wear measurements"
+            ],
+            answer: 2,
+            correct: "Correct. Employee attendance is not an equipment signal.",
+            wrong: "Not quite. Think about which option is not a physical machine signal."
+          },
+          {
+            question: "What is the main benefit of using an AI assistant like ChatGPT or Copilot to interpret machine readings?",
+            options: [
+              "It helps identify early risk patterns from raw data.",
+              "It automatically repairs the machine.",
+              "It replaces the need for sensors entirely.",
+              "It guarantees zero downtime."
+            ],
+            answer: 0,
+            correct: "Correct. AI assistance speeds up spotting early risk patterns.",
+            wrong: "Not quite. The assistant supports interpretation, it does not repair machines."
+          },
+          {
+            question: "A supervisor-ready maintenance summary should mainly focus on:",
+            options: [
+              "Clear operational language and actionable insight.",
+              "Long technical equations.",
+              "Random sensor screenshots.",
+              "Marketing language."
+            ],
+            answer: 0,
+            correct: "Correct. Supervisors need clear, actionable summaries.",
+            wrong: "Not quite. Summaries should be clear and operationally useful."
+          },
+          {
+            question: "Connecting maintenance intelligence to business value mainly means linking it to:",
+            options: [
+              "Uptime, cost, and safety.",
+              "Office decoration.",
+              "Social media engagement.",
+              "Employee vacation schedules."
+            ],
+            answer: 0,
+            correct: "Correct. Maintenance intelligence should tie back to uptime, cost, and safety.",
+            wrong: "Not quite. Focus on uptime, cost, and safety impact."
+          }
+        ],
+        prompts: [
+          "Analyze the following equipment readings and identify possible maintenance risks.",
+          "Explain which sensor reading is most likely contributing to the failure risk.",
+          "Generate a maintenance recommendation based on temperature, vibration, torque, and tool wear.",
+          "Summarize the equipment condition for a maintenance supervisor.",
+          "Classify the equipment condition as Low, Medium, or High risk and explain why.",
+          "Identify which readings are abnormal and what inspection action should be considered.",
+          "Compare two equipment cases and explain which one requires earlier maintenance attention.",
+          "Explain how tool wear can increase the probability of machine failure.",
+          "Create a short maintenance report from the following equipment readings.",
+          "Suggest what additional data would help improve failure prediction."
+        ]
+      },
+      {
+        title: "Python Fundamentals in Google Colab",
+        goal: "Build confidence with core Python syntax in Colab so students can read, transform, and explain equipment data step by step.",
+        tools: ["Google Colab", "ChatGPT / Copilot", "Python"],
+        activities: [
+          "Set up a clean Colab notebook with markdown notes, code cells, and section headings.",
+          "Practice variables, data types, lists, dictionaries, and simple maintenance examples.",
+          "Write conditional logic to classify sensor values as normal, warning, or critical.",
+          "Create reusable functions for risk scoring and maintenance message generation.",
+          "Use prompt-assisted debugging to explain errors and improve code readability."
+        ],
+        deliverable: "Colab notebook with Python basics, sensor classification logic, and reusable maintenance helper functions.",
+        quizzes: [
+          {
+            question: "Why organize a Colab notebook with markdown notes and clear section headings?",
+            options: [
+              "It improves readability and makes the analysis easier to follow.",
+              "It speeds up the CPU.",
+              "It is required to run Python.",
+              "It removes the need for comments."
+            ],
+            answer: 0,
+            correct: "Correct. Clear structure makes notebooks easier to follow.",
+            wrong: "Not quite. Structure is mainly about readability, not performance."
+          },
+          {
+            question: "Which Python data type best stores multiple labeled sensor readings, like temperature and vibration, together?",
+            options: [
+              "A dictionary.",
+              "A single integer.",
+              "A boolean.",
+              "A string only."
+            ],
+            answer: 0,
+            correct: "Correct. Dictionaries store labeled values well.",
+            wrong: "Not quite. Think about which type supports labeled key-value pairs."
+          },
+          {
+            question: "Conditional logic (if / elif / else) in a maintenance notebook is mainly used to:",
+            options: [
+              "Classify sensor values into categories like normal, warning, or critical.",
+              "Draw charts automatically.",
+              "Connect to Power BI.",
+              "Train a machine learning model."
+            ],
+            answer: 0,
+            correct: "Correct. Conditionals classify values into categories.",
+            wrong: "Not quite. Conditionals are about branching logic, not charts or models."
+          },
+          {
+            question: "Why are functions useful in a predictive maintenance notebook?",
+            options: [
+              "They make repeatable logic easier to reuse and test.",
+              "They automatically build a Power BI dashboard.",
+              "They replace the need to understand the data.",
+              "They guarantee a machine learning model is accurate."
+            ],
+            answer: 0,
+            correct: "Correct. Functions keep repeatable logic consistent and easier to test.",
+            wrong: "Try again. Functions are mainly about reusable, organized logic."
+          },
+          {
+            question: "What is the main purpose of prompt-assisted debugging?",
+            options: [
+              "Understanding and fixing code errors more efficiently.",
+              "Deleting all previous code.",
+              "Replacing Python with another language.",
+              "Skipping code testing entirely."
+            ],
+            answer: 0,
+            correct: "Correct. Prompt-assisted debugging speeds up finding and fixing errors.",
+            wrong: "Not quite. It is about diagnosing and fixing errors faster."
+          }
+        ]
+      },
+      {
+        title: "Data Analytics with Python",
+        goal: "Use Pandas to inspect, clean, summarize, and prepare industrial equipment datasets for analysis and modeling.",
+        tools: ["Google Colab", "ChatGPT / Copilot", "Python", "Pandas", "Matplotlib"],
+        activities: [
+          "Load equipment data into Pandas and inspect rows, columns, data types, and missing values.",
+          "Clean column names, handle missing values, and filter machines by operating condition.",
+          "Calculate summary statistics for sensor readings and failure labels.",
+          "Group data by machine type or risk level to compare equipment behavior.",
+          "Create initial Matplotlib charts that reveal trends, outliers, and risk patterns."
+        ],
+        deliverable: "Exploratory data analysis notebook with cleaned data, grouped insights, and first visualizations.",
+        quizzes: [
+          {
+            question: "Which Pandas task is most useful before building charts or models?",
+            options: [
+              "Inspecting data quality, missing values, and column meanings.",
+              "Changing every column to text.",
+              "Deleting the target variable.",
+              "Exporting the file before reading it."
+            ],
+            answer: 0,
+            correct: "Correct. Data quality checks protect every later analysis step.",
+            wrong: "Not quite. Good analysis starts by understanding and cleaning the dataset."
+          },
+          {
+            question: "What does cleaning column names and handling missing values mainly help prevent?",
+            options: [
+              "Errors and misleading results in later analysis.",
+              "Increasing dataset size.",
+              "Removing the need for visualization.",
+              "Deleting the failure label."
+            ],
+            answer: 0,
+            correct: "Correct. Cleaning prevents errors and misleading results later on.",
+            wrong: "Not quite. Cleaning protects the accuracy of later steps."
+          },
+          {
+            question: "Summary statistics for sensor readings are useful mainly to:",
+            options: [
+              "Understand the typical range and spread of the data.",
+              "Automatically train a model.",
+              "Replace the need for a dashboard.",
+              "Rename dataset columns."
+            ],
+            answer: 0,
+            correct: "Correct. Summary statistics describe range and spread.",
+            wrong: "Not quite. Summary statistics describe the data, they do not train models."
+          },
+          {
+            question: "Grouping data by machine type or risk level mainly helps you:",
+            options: [
+              "Compare equipment behavior across categories.",
+              "Delete unused columns.",
+              "Convert text to numbers.",
+              "Increase model accuracy automatically."
+            ],
+            answer: 0,
+            correct: "Correct. Grouping supports comparison across categories.",
+            wrong: "Not quite. Grouping is about comparison, not automatic accuracy gains."
+          },
+          {
+            question: "The main goal of creating initial Matplotlib charts is to:",
+            options: [
+              "Reveal trends, outliers, and risk patterns visually.",
+              "Replace the dataset.",
+              "Finalize the machine learning model.",
+              "Publish the dashboard."
+            ],
+            answer: 0,
+            correct: "Correct. Early charts help reveal trends, outliers, and patterns.",
+            wrong: "Not quite. Early charts are for exploration, not finalizing the model."
+          }
+        ]
+      },
+      {
+        title: "Visualization, Power BI Dashboard, and Business Insights",
+        goal: "Turn maintenance data into readable visuals and a Power BI dashboard that supports operational decision-making.",
+        tools: ["Google Colab", "Matplotlib", "Power BI Desktop", "PowerPoint"],
+        activities: [
+          "Choose chart types for sensor distribution, failure comparison, and machine status trends.",
+          "Use Matplotlib to create clean exploratory charts with titles, labels, and readable scales.",
+          "Import the prepared dataset into Power BI Desktop and check field types.",
+          "Build dashboard visuals for risk level, machine type, sensor readings, and failure counts.",
+          "Write business insight statements that connect visuals to maintenance actions."
+        ],
+        deliverable: "Power BI dashboard with core maintenance visuals and a one-slide business insight summary.",
+        quizzes: [
+          {
+            question: "Choosing the right chart type mainly depends on:",
+            options: [
+              "The type of data and the question you want to answer.",
+              "The company logo colors.",
+              "The size of the laptop screen.",
+              "The number of tabs in Excel."
+            ],
+            answer: 0,
+            correct: "Correct. Chart choice should follow the data and the question.",
+            wrong: "Not quite. Chart choice depends on data type and purpose."
+          },
+          {
+            question: "Adding clear titles, labels, and readable scales to a chart mainly improves:",
+            options: [
+              "How easily others can understand the chart.",
+              "The chart's file size.",
+              "The model's accuracy.",
+              "The speed of Power BI."
+            ],
+            answer: 0,
+            correct: "Correct. Clear labeling improves understanding.",
+            wrong: "Not quite. Labeling is about clarity, not model performance."
+          },
+          {
+            question: "Before building visuals in Power BI, why check field types after import?",
+            options: [
+              "To make sure numbers, dates, and categories are recognized correctly.",
+              "To delete unnecessary rows.",
+              "To rename the dataset file.",
+              "To skip the need for cleaning."
+            ],
+            answer: 0,
+            correct: "Correct. Field types must be correct before building visuals.",
+            wrong: "Not quite. This step confirms the data is read correctly."
+          },
+          {
+            question: "What makes a maintenance dashboard useful for supervisors?",
+            options: [
+              "It highlights risk patterns and supports clear action decisions.",
+              "It contains as many colors and charts as possible.",
+              "It hides abnormal readings until the final report.",
+              "It only shows raw tables without summaries."
+            ],
+            answer: 0,
+            correct: "Correct. A useful dashboard makes risk and action priorities clear.",
+            wrong: "Not quite. Supervisors need focused insight, not visual noise."
+          },
+          {
+            question: "A good business insight statement should mainly:",
+            options: [
+              "Connect a visual finding to a maintenance action.",
+              "List every number in the dataset.",
+              "Repeat the chart title.",
+              "Avoid mentioning risk levels."
+            ],
+            answer: 0,
+            correct: "Correct. Insight statements should link findings to action.",
+            wrong: "Not quite. A good insight connects data to a decision or action."
+          }
+        ]
+      },
+      {
+        title: "Machine Learning for Failure Prediction",
+        goal: "Train beginner-friendly classification models that predict equipment failure risk from prepared sensor data.",
+        tools: ["Google Colab", "ChatGPT / Copilot", "Python", "Pandas", "Scikit-learn"],
+        activities: [
+          "Define features, target label, and the prediction question in plain language.",
+          "Split data into training and testing sets using Scikit-learn.",
+          "Train a baseline classification model for failure prediction.",
+          "Generate predictions and compare them with actual failure labels.",
+          "Explain model inputs, outputs, and limitations for a non-technical maintenance audience."
+        ],
+        deliverable: "Failure prediction notebook with train-test split, trained model, predictions, and plain-language explanation.",
+        quizzes: [
+          {
+            question: "In a failure prediction model, what is the target label?",
+            options: [
+              "The outcome the model is trained to predict, such as failure or no failure.",
+              "The color used in the dashboard.",
+              "The first row of the dataset.",
+              "The name of the Colab notebook."
+            ],
+            answer: 0,
+            correct: "Correct. The target label is the outcome the model learns to predict.",
+            wrong: "Not quite. The target label is the prediction outcome."
+          },
+          {
+            question: "Why split data into training and testing sets?",
+            options: [
+              "To check how the model performs on data it has not seen before.",
+              "To make the dataset smaller for no reason.",
+              "To remove the target label.",
+              "To speed up Power BI."
+            ],
+            answer: 0,
+            correct: "Correct. Testing on unseen data checks real performance.",
+            wrong: "Not quite. The split is about evaluating on unseen data."
+          },
+          {
+            question: "A baseline classification model is mainly used to:",
+            options: [
+              "Provide a starting point to compare future improvements against.",
+              "Guarantee perfect accuracy.",
+              "Replace the need for evaluation.",
+              "Automatically generate a dashboard."
+            ],
+            answer: 0,
+            correct: "Correct. A baseline is a reference point for improvement.",
+            wrong: "Not quite. A baseline is a starting comparison point, not a guarantee."
+          },
+          {
+            question: "Comparing predictions with actual failure labels mainly helps you:",
+            options: [
+              "Evaluate how well the model performs.",
+              "Change the original dataset permanently.",
+              "Skip the need for testing data.",
+              "Design the Power BI dashboard."
+            ],
+            answer: 0,
+            correct: "Correct. Comparing predictions to actual labels measures performance.",
+            wrong: "Not quite. This comparison is about evaluating model performance."
+          },
+          {
+            question: "Explaining model limitations to a non-technical audience is important because:",
+            options: [
+              "It builds trust and sets realistic expectations about the model's accuracy.",
+              "It is required by Python syntax.",
+              "It replaces the need for a report.",
+              "It guarantees the model is always correct."
+            ],
+            answer: 0,
+            correct: "Correct. Clear limitations build trust and realistic expectations.",
+            wrong: "Not quite. Explaining limitations is about honesty and trust."
+          }
+        ]
+      },
+      {
+        title: "Evaluation and Optimization",
+        goal: "Evaluate model performance, interpret errors, and improve the maintenance recommendation workflow responsibly.",
+        tools: ["Google Colab", "ChatGPT / Copilot", "Python", "Pandas", "Scikit-learn", "Matplotlib"],
+        activities: [
+          "Calculate accuracy and compare it with the operational cost of wrong predictions.",
+          "Review confusion matrix results for false alarms and missed failures.",
+          "Discuss precision and recall in the context of maintenance planning.",
+          "Tune selected model settings and compare performance changes.",
+          "Create an evaluation summary with recommended next improvements."
+        ],
+        deliverable: "Model evaluation report with metrics, confusion matrix interpretation, and optimization recommendations.",
+        quizzes: [
+          {
+            question: "Why compare accuracy with the operational cost of wrong predictions?",
+            options: [
+              "Because some prediction errors are more costly than others in a real plant.",
+              "Because accuracy is always the only metric that matters.",
+              "Because cost has nothing to do with model evaluation.",
+              "Because Power BI requires it."
+            ],
+            answer: 0,
+            correct: "Correct. Some errors cost more than others in real operations.",
+            wrong: "Not quite. Different errors carry different operational costs."
+          },
+          {
+            question: "A confusion matrix mainly helps you see:",
+            options: [
+              "False alarms and missed failures compared to correct predictions.",
+              "The color scheme of the dashboard.",
+              "The number of Python libraries used.",
+              "The dataset file size."
+            ],
+            answer: 0,
+            correct: "Correct. A confusion matrix breaks down correct and incorrect predictions.",
+            wrong: "Not quite. It shows prediction outcomes, not dashboard design."
+          },
+          {
+            question: "Why can recall be important in predictive maintenance?",
+            options: [
+              "Low recall may mean the model misses real failures.",
+              "High recall always means the dashboard design is finished.",
+              "Recall measures how fast Power BI opens.",
+              "Recall removes the need to inspect false alarms."
+            ],
+            answer: 0,
+            correct: "Correct. Missing real failures can be costly or unsafe.",
+            wrong: "Not quite. Recall is about capturing actual positive failure cases."
+          },
+          {
+            question: "Tuning model settings and comparing performance changes helps you:",
+            options: [
+              "Find configurations that improve prediction quality.",
+              "Permanently fix all data errors.",
+              "Replace the need for testing.",
+              "Guarantee 100% recall."
+            ],
+            answer: 0,
+            correct: "Correct. Tuning helps find better-performing configurations.",
+            wrong: "Not quite. Tuning improves performance, it does not guarantee perfection."
+          },
+          {
+            question: "A good evaluation summary should mainly include:",
+            options: [
+              "Metrics, key findings, and recommended next improvements.",
+              "Only the Python code used.",
+              "A list of unrelated topics.",
+              "The company's marketing plan."
+            ],
+            answer: 0,
+            correct: "Correct. Summaries should cover metrics, findings, and next steps.",
+            wrong: "Not quite. A summary should focus on metrics and improvement recommendations."
+          }
+        ]
+      },
+      {
+        title: "Final AI Maintenance Advisor Demo",
+        goal: "Integrate analytics, model output, dashboard insight, and prompt-assisted reporting into a final advisor-style demonstration.",
+        tools: ["Google Colab", "ChatGPT / Copilot", "Python", "Pandas", "Scikit-learn", "Power BI Desktop", "PowerPoint"],
+        activities: [
+          "Select final machine cases that demonstrate low, medium, and high maintenance risk.",
+          "Run the prediction workflow and produce maintenance recommendation text.",
+          "Connect model outputs with dashboard visuals and business interpretation.",
+          "Build a concise PowerPoint demo story for technical and operational stakeholders.",
+          "Present the AI Maintenance Advisor demo with risks, recommendations, and next steps."
+        ],
+        deliverable: "Final AI Maintenance Advisor demo package with notebook, dashboard, recommendation examples, and presentation.",
+        quizzes: [
+          {
+            question: "Selecting final cases with low, medium, and high risk mainly helps to:",
+            options: [
+              "Demonstrate the model's behavior across different risk levels.",
+              "Only show low risk machines.",
+              "Avoid showing any predictions.",
+              "Simplify the dataset by deleting most rows."
+            ],
+            answer: 0,
+            correct: "Correct. Varied cases show how the model behaves across risk levels.",
+            wrong: "Not quite. The goal is to show behavior across different risk levels."
+          },
+          {
+            question: "Running the prediction workflow to produce recommendation text mainly turns model output into:",
+            options: [
+              "Clear, actionable maintenance guidance.",
+              "A new dataset column with no meaning.",
+              "A replacement for the dashboard.",
+              "An automatic repair action."
+            ],
+            answer: 0,
+            correct: "Correct. Predictions should become clear, actionable guidance.",
+            wrong: "Not quite. The output should be turned into actionable guidance."
+          },
+          {
+            question: "Connecting model outputs with dashboard visuals mainly supports:",
+            options: [
+              "A clear business interpretation of the results.",
+              "Hiding the model's predictions.",
+              "Removing the need for a report.",
+              "Making the code harder to read."
+            ],
+            answer: 0,
+            correct: "Correct. Linking outputs to visuals supports clear interpretation.",
+            wrong: "Not quite. This connection should make results easier to interpret."
+          },
+          {
+            question: "A concise PowerPoint demo story for stakeholders should mainly focus on:",
+            options: [
+              "Clear, relevant points for both technical and operational audiences.",
+              "As much technical jargon as possible.",
+              "Only chart colors.",
+              "Randomly selected slides."
+            ],
+            answer: 0,
+            correct: "Correct. The story should stay clear and relevant for all stakeholders.",
+            wrong: "Not quite. Focus on clarity and relevance for the audience."
+          },
+          {
+            question: "What should the final AI Maintenance Advisor demo combine?",
+            options: [
+              "Data analysis, model prediction, dashboard insight, and maintenance recommendations.",
+              "Only raw code cells with no explanation.",
+              "Only a slide title and one chart.",
+              "Only ChatGPT answers without equipment data."
+            ],
+            answer: 0,
+            correct: "Correct. The demo should connect technical output to maintenance action.",
+            wrong: "Not quite. The final demo needs an integrated, evidence-based workflow."
+          }
+        ]
+      }
+    ];
+
+    const defaultState = {
+      completed: [],
+      quizzes: {},
+      activeWeek: 0
+    };
+
+    let state = loadState();
+
+    const weekTabs = document.getElementById("weekTabs");
+    const weekPanel = document.getElementById("weekPanel");
+    const milestoneList = document.getElementById("milestoneList");
+    const progressText = document.getElementById("progressText");
+    const progressFill = document.getElementById("progressFill");
+    const resetProgress = document.getElementById("resetProgress");
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (!saved || typeof saved !== "object") {
+          return structuredClone(defaultState);
+        }
+
+        return {
+          completed: Array.isArray(saved.completed) ? saved.completed : [],
+          quizzes: saved.quizzes && typeof saved.quizzes === "object" ? saved.quizzes : {},
+          activeWeek: Number.isInteger(saved.activeWeek) ? clampWeek(saved.activeWeek) : 0
+        };
+      } catch (error) {
+        return structuredClone(defaultState);
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function clampWeek(index) {
+      return Math.max(0, Math.min(weeks.length - 1, index));
+    }
+
+    function isCompleted(index) {
+      return state.completed.includes(index);
+    }
+
+    function render() {
+      renderProgress();
+      renderTabs();
+      renderWeek();
+      renderMilestones();
+    }
+
+    function renderProgress() {
+      const completedCount = state.completed.length;
+      const percent = Math.round((completedCount / weeks.length) * 100);
+      progressText.textContent = completedCount + "/" + weeks.length + " weeks completed - " + percent + "%";
+      progressFill.style.width = percent + "%";
+    }
+
+    function renderTabs() {
+      weekTabs.innerHTML = "";
+
+      weeks.forEach((week, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "tab-button";
+        button.setAttribute("aria-label", "Open week " + (index + 1));
+        if (index === state.activeWeek) button.classList.add("active");
+        if (isCompleted(index)) button.classList.add("completed");
+
+        button.innerHTML = [
+          '<span class="tab-week"><span class="tab-check" aria-hidden="true">&#10003;</span>Week ' + (index + 1) + '</span>',
+          '<span class="tab-title">' + escapeHtml(shortTitle(week.title)) + '</span>'
+        ].join("");
+
+        button.addEventListener("click", () => setActiveWeek(index));
+        weekTabs.appendChild(button);
+      });
+    }
+
+    function renderWeek() {
+      const index = state.activeWeek;
+      const week = weeks[index];
+      const selectedQuizOptions = state.quizzes[index] || {};
+      const isWeekCompleted = isCompleted(index);
+      const promptSection = week.prompts ? renderPromptLibrary(week.prompts) : "";
+
+      weekPanel.innerHTML = [
+        '<div class="week-hero">',
+        '<p class="week-label">Week ' + (index + 1) + '</p>',
+        '<h2 class="week-title">' + escapeHtml(week.title) + '</h2>',
+        '<p class="week-goal">' + escapeHtml(week.goal) + '</p>',
+        '</div>',
+        '<div class="week-body">',
+        '<div class="section-grid">',
+        '<section class="content-card">',
+        '<h3>Tools Used</h3>',
+        '<ul class="tool-list">' + week.tools.map(tool => '<li class="tool-chip">' + escapeHtml(tool) + '</li>').join("") + '</ul>',
+        '</section>',
+        '<section class="content-card deliverable-card">',
+        '<h3>Deliverable</h3>',
+        '<p class="deliverable-text">' + escapeHtml(week.deliverable) + '</p>',
+        '</section>',
+        '</div>',
+        '<section class="content-card">',
+        '<h3>Daily Activities</h3>',
+        '<ul class="activity-list">' + week.activities.map((activity, dayIndex) => (
+          '<li class="activity-item"><span class="day-label">Day ' + (dayIndex + 1) + '</span><span class="activity-text">' + escapeHtml(activity) + '</span></li>'
+        )).join("") + '</ul>',
+        '</section>',
+        promptSection,
+        renderQuiz(week.quizzes, index, selectedQuizOptions),
+        '</div>',
+        '<div class="week-actions">',
+        '<div class="nav-group">',
+        '<button class="nav-button" id="previousWeek" type="button"' + (index === 0 ? " disabled" : "") + '>Previous Week</button>',
+        '<button class="nav-button" id="nextWeek" type="button"' + (index === weeks.length - 1 ? " disabled" : "") + '>Next Week</button>',
+        '</div>',
+        '<button class="complete-button' + (isWeekCompleted ? " completed" : "") + '" id="completeWeek" type="button">' + (isWeekCompleted ? "Completed" : "Mark as Completed") + '</button>',
+        '</div>'
+      ].join("");
+
+      document.getElementById("previousWeek").addEventListener("click", () => setActiveWeek(index - 1));
+      document.getElementById("nextWeek").addEventListener("click", () => setActiveWeek(index + 1));
+      document.getElementById("completeWeek").addEventListener("click", () => toggleComplete(index));
+
+      document.querySelectorAll("[data-option]").forEach(button => {
+        button.addEventListener("click", () => selectQuizOption(index, Number(button.dataset.quiz), Number(button.dataset.option)));
+      });
+    }
+
+    function renderPromptLibrary(prompts) {
+      return [
+        '<section class="content-card prompt-library visible">',
+        '<h3>Maintenance Prompt Library</h3>',
+        '<ol class="prompt-list">',
+        prompts.map(prompt => '<li>' + escapeHtml(prompt) + '</li>').join(""),
+        '</ol>',
+        '</section>'
+      ].join("");
+    }
+
+    function renderQuiz(quizzes, weekIndex, selectedOptions) {
+      const sel = selectedOptions || {};
+
+      return [
+        '<section class="quiz-card" aria-label="Quick Check quizzes">',
+        '<h3>Quick Check &mdash; 5 Questions</h3>',
+        quizzes.map((quiz, quizIndex) => {
+          const selectedOption = sel[quizIndex];
+          const hasAnswer = Number.isInteger(selectedOption);
+          const isCorrect = hasAnswer && selectedOption === quiz.answer;
+          const feedbackClass = isCorrect ? "correct" : "wrong";
+          const feedbackText = isCorrect ? quiz.correct : quiz.wrong;
+
+          return [
+            '<div class="quiz-question-block">',
+            '<p class="question-text">' + (quizIndex + 1) + '. ' + escapeHtml(quiz.question) + '</p>',
+            '<div class="quiz-options">',
+            quiz.options.map((option, optionIndex) => {
+              let className = "quiz-option";
+              if (hasAnswer && optionIndex === quiz.answer) className += " correct";
+              if (hasAnswer && optionIndex === selectedOption && selectedOption !== quiz.answer) className += " wrong";
+              return '<button type="button" class="' + className + '" data-week="' + weekIndex + '" data-quiz="' + quizIndex + '" data-option="' + optionIndex + '">' +
+                '<span class="option-letter">' + String.fromCharCode(65 + optionIndex) + '</span>' +
+                '<span>' + escapeHtml(option) + '</span>' +
+                '</button>';
+            }).join(""),
+            '</div>',
+            '<div class="feedback' + (hasAnswer ? " visible " + feedbackClass : "") + '" role="status">' + (hasAnswer ? escapeHtml(feedbackText) : "") + '</div>',
+            '</div>'
+          ].join("");
+        }).join(""),
+        '</section>'
+      ].join("");
+    }
+
+    function renderMilestones() {
+      milestoneList.innerHTML = "";
+
+      weeks.forEach((week, index) => {
+        const item = document.createElement("li");
+        item.className = "milestone-item";
+        if (isCompleted(index)) item.classList.add("done");
+
+        item.innerHTML = [
+          '<span class="milestone-dot">' + (isCompleted(index) ? "&#10003;" : index + 1) + '</span>',
+          '<span>Week ' + (index + 1) + ': ' + escapeHtml(shortTitle(week.title)) + '</span>'
+        ].join("");
+
+        milestoneList.appendChild(item);
+      });
+    }
+
+    function setActiveWeek(index) {
+      state.activeWeek = clampWeek(index);
+      saveState();
+      render();
+      document.getElementById("top").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function toggleComplete(index) {
+      if (isCompleted(index)) {
+        state.completed = state.completed.filter(weekIndex => weekIndex !== index);
+      } else {
+        state.completed = [...state.completed, index].sort((a, b) => a - b);
+      }
+      saveState();
+      render();
+    }
+
+    function selectQuizOption(weekIndex, quizIndex, optionIndex) {
+      if (!state.quizzes[weekIndex] || typeof state.quizzes[weekIndex] !== "object") {
+        state.quizzes[weekIndex] = {};
+      }
+      state.quizzes[weekIndex][quizIndex] = optionIndex;
+      saveState();
+      renderWeek();
+    }
+
+    function shortTitle(title) {
+      const replacements = {
+        "Predictive Maintenance Foundations and Maintenance Intelligence": "Foundations",
+        "Python Fundamentals in Google Colab": "Python Basics",
+        "Data Analytics with Python": "Data Analytics",
+        "Visualization, Power BI Dashboard, and Business Insights": "Dashboards",
+        "Machine Learning for Failure Prediction": "ML Prediction",
+        "Evaluation and Optimization": "Evaluation",
+        "Final AI Maintenance Advisor Demo": "Final Demo"
+      };
+
+      return replacements[title] || title;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    resetProgress.addEventListener("click", () => {
+      const confirmed = window.confirm("Reset all completed weeks and quiz answers?");
+      if (!confirmed) return;
+
+      state = structuredClone(defaultState);
+      saveState();
+      render();
+      document.getElementById("top").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    render();
+  </script>
+</body>
+</html>
