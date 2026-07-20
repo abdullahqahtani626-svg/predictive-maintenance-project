@@ -1506,6 +1506,12 @@
       renderTabs();
       renderWeek();
       renderMilestones();
+      renderReportButton();
+    }
+
+    function renderReportButton() {
+      const isLastWeek = state.activeWeek === weeks.length - 1;
+      submitReportBtn.style.display = isLastWeek ? "flex" : "none";
     }
 
     function renderProgress() {
