@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Predictive Maintenance Project | 7-Week Interactive Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c231f; --ink-soft:#4c564e; --paper:#f4f2ea; --paper-2:#ffffff;
+    --line:#d8d4c4; --gear:#2c5f4f; --gear-dark:#183d31; --gear-light:#e4efe9;
+    --rust:#b5502e; --rust-light:#f6e5dd; --amber:#c98a1f; --amber-light:#faedd3;
+    --blue:#1f5fa0; --blue-light:#e5eef8; --red:#c0392b; --red-light:#fdecea;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--paper); color:var(--ink); font-family:'Inter',sans-serif; line-height:1.7; }
+  code, .mono{ font-family:'IBM Plex Mono', monospace; }
+
+  .hero{ background: linear-gradient(135deg, rgba(24,61,49,0.6), rgba(44,95,79,0.6)), url('header-guide.png') center 30% / cover; color:#f2f0e6; padding:44px 24px 66px; position:relative; overflow:hidden; }
+
+  .hero-logo{ position:absolute; top:18px; width:90px; height:auto; z-index:2; opacity:0.95; }
+  .hero-logo.left{ left:24px; }
+  .hero-logo.right{ right:24px; }
+  .hero::after{ content:""; position:absolute; right:-60px; bottom:-80px; width:260px; height:260px; border-radius:50%; border:28px solid rgba(244,242,234,0.06); }
+  .hero-inner{max-width:920px; margin:0 auto; position:relative; z-index:1;}
+  .eyebrow{ font-family:'IBM Plex Mono',monospace; font-size:13px; letter-spacing:1px; color:#9fd6bf; margin:0 0 10px; text-transform:uppercase; }
+  .hero h1{ font-size:clamp(26px,4vw,40px); font-weight:900; margin:0 0 10px; }
+  .hero p{ font-size:16px; color:#cfd6cf; max-width:640px; margin:0; }
+
+  .student-bar{ max-width:920px; margin:-30px auto 0; padding:0 24px; position:relative; z-index:2; }
+  .student-card{
+    background:var(--paper-2); border:1px solid var(--line); border-radius:14px;
+    padding:16px 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+    box-shadow:0 10px 24px rgba(24,61,49,0.08);
+  }
+  .student-card label{ font-size:13px; color:var(--ink-soft); white-space:nowrap; }
+  .student-card input[type=text]{
+    flex:1; min-width:160px; padding:9px 12px; border-radius:8px; border:1px solid var(--line);
+    font-family:'Inter',sans-serif; font-size:14px; background:var(--paper);
+  }
+  .student-card button{
+    font-family:'Inter',sans-serif; font-size:13px; font-weight:700; padding:9px 16px;
+    border-radius:8px; border:1px solid var(--gear); background:var(--gear); color:#fff; cursor:pointer;
+  }
+  .student-card .active-name{ font-size:14px; font-weight:700; color:var(--gear-dark); }
+
+  .progress-wrap{ max-width:920px; margin:16px auto 0; padding:0 24px; }
+  .progress-card{ background:var(--paper-2); border:1px solid var(--line); border-radius:14px; padding:16px 20px; display:flex; align-items:center; gap:18px; }
+  .progress-card span.lbl{font-size:14px; color:var(--ink-soft); white-space:nowrap;}
+  .bar-track{flex:1; height:10px; background:var(--line); border-radius:6px; overflow:hidden;}
+  .bar-fill{height:100%; width:0%; background:linear-gradient(90deg,var(--gear),#3f8d70); transition:width .3s ease;}
+  .progress-card span.pct{font-family:'IBM Plex Mono',monospace; font-size:14px; font-weight:500; min-width:100px; text-align:right;}
+
+  .weeknav{ max-width:920px; margin:20px auto 0; padding:0 24px; display:flex; gap:8px; flex-wrap:wrap; }
+  .weeknav button{
+    font-family:'Inter',sans-serif; font-size:14px; font-weight:500; padding:9px 16px; border-radius:999px;
+    border:1px solid var(--line); background:var(--paper-2); color:var(--ink-soft); cursor:pointer; transition:.15s ease;
+  }
+  .weeknav button.active{ background:var(--gear); color:#fff; border-color:var(--gear); }
+  .weeknav button:hover:not(.active){ border-color:var(--gear); color:var(--gear); }
+
+  main{max-width:920px; margin:0 auto; padding:30px 24px 80px;}
+  .week-block{ display:none; }
+  .week-block.active{ display:block; }
+
+  .week-head{ display:flex; align-items:baseline; gap:12px; border-bottom:2px solid var(--gear); padding-bottom:14px; margin-bottom:6px; }
+  .week-num{ font-family:'IBM Plex Mono',monospace; background:var(--gear); color:#fff; font-size:13px; padding:4px 10px; border-radius:6px; }
+  .week-head h2{ font-size:21px; font-weight:900; margin:0; }
+  .week-goal{ color:var(--ink-soft); font-size:15px; margin:10px 0 24px; }
+
+  .day{ background:var(--paper-2); border:1px solid var(--line); border-radius:12px; margin-bottom:12px; overflow:hidden; }
+  .day-head{ display:flex; align-items:center; justify-content:space-between; padding:14px 18px; cursor:pointer; user-select:none; }
+  .day-head:hover{ background:var(--gear-light); }
+  .day-title{ display:flex; align-items:center; gap:12px; }
+  .day-badge{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:500; width:30px; height:30px; border-radius:50%;
+    background:var(--gear-light); color:var(--gear-dark); display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .day-badge.done{ background:var(--gear); color:#fff; }
+  .day-title h3{ font-size:15.5px; font-weight:700; margin:0; }
+  .chev{ transition:transform .2s ease; color:var(--ink-soft); font-size:14px; }
+  .day.open .chev{ transform:rotate(180deg); }
+
+  .day-body{ max-height:0; overflow:hidden; transition:max-height .3s ease; padding:0 18px; }
+  .day.open .day-body{ padding:0 18px 20px; }
+  .day-body ul{ margin:10px 0; padding-inline-start:20px; }
+  .day-body li{ margin-bottom:6px; font-size:14.5px; }
+
+  .code-block{
+    background:var(--gear-dark); color:#e6f0eb; border-radius:8px; padding:14px 16px; font-size:13px;
+    text-align:left; overflow-x:auto; margin:10px 0; white-space:pre;
+  }
+  .note{ background:var(--amber-light); border-inline-start:3px solid var(--amber); border-radius:0 8px 8px 0; padding:10px 14px; font-size:14px; margin:12px 0; }
+  .deliverable{ background:var(--rust-light); border-inline-start:3px solid var(--rust); border-radius:0 8px 8px 0; padding:14px 18px; font-size:14.5px; margin-top:18px; }
+  .deliverable b{ color:var(--rust); }
+
+  .quiz-box{ margin-top:18px; border-top:1px dashed var(--line); padding-top:16px; }
+  .quiz-box h4{ font-size:14.5px; margin:0 0 12px; color:var(--gear-dark); }
+  .qitem{ margin-bottom:14px; background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:12px 14px; }
+  .qitem p.qtext{ font-size:14px; font-weight:500; margin:0 0 8px; }
+  .qitem label{ display:block; font-size:13.5px; padding:6px 8px; border-radius:6px; cursor:pointer; margin-bottom:2px; }
+  .qitem label:hover{ background:var(--gear-light); }
+  .qitem label.correct-ans{ background:var(--gear-light); color:var(--gear-dark); font-weight:700; }
+  .qitem label.wrong-ans{ background:var(--red-light); color:var(--red); }
+  .submit-quiz{
+    font-family:'Inter',sans-serif; font-size:13px; font-weight:700; padding:9px 16px; border-radius:8px;
+    border:1px solid var(--blue); background:var(--blue); color:#fff; cursor:pointer; margin-top:6px;
+  }
+  .submit-quiz:disabled{ opacity:.5; cursor:not-allowed; }
+  .quiz-result{ font-size:13.5px; font-weight:700; margin-top:10px; padding:8px 12px; border-radius:8px; }
+  .quiz-result.good{ background:var(--gear-light); color:var(--gear-dark); }
+  .quiz-result.mid{ background:var(--amber-light); color:#7a5510; }
+  .quiz-result.low{ background:var(--red-light); color:var(--red); }
+
+  .report-box{ background:var(--paper-2); border:2px solid var(--gear); border-radius:14px; padding:22px; margin-top:20px; }
+  .report-box h3{ margin:0 0 6px; color:var(--gear-dark); font-size:18px; }
+  .report-box p.sub{ color:var(--ink-soft); font-size:13.5px; margin:0 0 16px; }
+  .report-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
+  .report-table th, .report-table td{ text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); }
+  .report-table th{ color:var(--ink-soft); font-weight:600; }
+  .report-summary{ display:flex; gap:14px; flex-wrap:wrap; margin:16px 0; }
+  .report-stat{ background:var(--gear-light); border-radius:10px; padding:10px 16px; font-size:13px; color:var(--gear-dark); }
+  .report-stat b{ display:block; font-size:20px; }
+  .print-btn{
+    font-family:'Inter',sans-serif; font-size:13px; font-weight:700; padding:10px 18px; border-radius:8px;
+    border:1px solid var(--gear-dark); background:var(--gear-dark); color:#fff; cursor:pointer; margin-top:6px;
+  }
+  .locked-msg{ font-size:14px; color:var(--ink-soft); background:var(--paper); border:1px dashed var(--line); border-radius:10px; padding:14px; }
+
+  footer{ text-align:center; color:var(--ink-soft); font-size:13px; padding:30px 24px 50px; }
+  @media print{ .hero,.student-bar,.progress-wrap,.weeknav,footer,.submit-quiz{ display:none !important; } .week-block{ display:block !important; } }
+  @media(max-width:600px){ .hero{padding:36px 18px 54px;} }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <img src="logo.png" class="hero-logo left" alt="Petro Rabigh">
+  <img src="logo.png" class="hero-logo right" alt="Petro Rabigh">
+  <div class="hero-inner">
+    <p class="eyebrow">AI Co-op Internship — Predictive Maintenance Track</p>
+    <h1>Your interactive step-by-step guide</h1>
+    <p>Every day includes a goal, practical steps, code, and a 5-question quiz. Progress is saved per student name, and the final day includes your personal report.</p>
+  </div>
+</div>
+
+<div class="student-bar">
+  <div class="student-card">
+    <label for="nameInput">Student name:</label>
+    <input type="text" id="nameInput" list="nameList" placeholder="Type your name...">
+    <datalist id="nameList"></datalist>
+    <button onclick="setStudent()">Start / Switch</button>
+    <span class="active-name" id="activeName"></span>
+  </div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-card">
+    <span class="lbl">Progress</span>
+    <div class="bar-track"><div class="bar-fill" id="barFill"></div></div>
+    <span class="pct" id="pctLabel">0 / 35 days</span>
+  </div>
+</div>
+
+<div class="weeknav" id="weekNav"></div>
+
+<main id="weeksContainer"></main>
+
+<footer>Progress and quiz scores are saved in this browser under each student's name (localStorage). Using a different browser or device will not show the same progress.</footer>
+
+<script>
+const DATA = [
+{
+  title: "Week 1 — Predictive Maintenance Foundations and Maintenance Intelligence",
+  goal: "Understand predictive maintenance, equipment failures, sensor data, and how AI supports maintenance decisions.",
+  deliverable: "Dataset understanding report, 3 failure scenarios, a 10-prompt maintenance library, and an initial Maintenance Advisor concept.",
+  days: [
+    {t:"Day 1 — Introduction to Predictive Maintenance", items:[
+      "Learn what predictive maintenance means and why industries rely on it.",
+      "Understand the difference between predictive, preventive, and reactive maintenance."
+    ], note:"No code today — the focus is purely conceptual.",
+    quiz:[
+      {q:"What does predictive maintenance aim to do?", o:["Fix equipment only after it breaks","Predict failures before they happen using data","Replace equipment on a fixed schedule regardless of condition","Ignore maintenance until failure"], c:1},
+      {q:"Which maintenance type replaces parts on a fixed schedule, whether needed or not?", o:["Predictive","Preventive","Reactive","Corrective"], c:1},
+      {q:"Reactive maintenance means:", o:["Fixing equipment after it fails","Predicting failure with sensors","Scheduled replacement","No maintenance at all"], c:0},
+      {q:"What's the main advantage of predictive maintenance over reactive maintenance?", o:["It's cheaper to ignore problems","It reduces unexpected downtime by acting early","It requires no data","It eliminates the need for sensors"], c:1},
+      {q:"Predictive maintenance decisions are mainly based on:", o:["Random guessing","Sensor and equipment data","Employee mood","Weather forecasts"], c:1}
+    ]},
+    {t:"Day 2 — Equipment and Sensor Data", items:[
+      "Learn the core fields: air temperature, process temperature, torque, vibration, tool wear.",
+      "Understand how each field signals equipment condition."
+    ],
+    quiz:[
+      {q:"Which of these is NOT a typical sensor reading in this dataset?", o:["Vibration","Torque","Stock price","Tool wear"], c:2},
+      {q:"Rising tool wear over time generally indicates:", o:["The tool is getting sharper","The tool is degrading and may need replacement","Nothing significant","The machine is off"], c:1},
+      {q:"Torque measures:", o:["Rotational force applied by the machine","Air temperature","Humidity","Screen brightness"], c:0},
+      {q:"Vibration readings help detect:", o:["Software bugs","Mechanical imbalance or wear","Internet speed","Employee attendance"], c:1},
+      {q:"Why monitor multiple sensor fields instead of just one?", o:["It looks impressive","Different signals reveal different failure modes","It's required by law","It slows down analysis"], c:1}
+    ]},
+    {t:"Day 3 — Failure Investigation Workshop", items:[
+      "Take 2–3 sample equipment reading cases.",
+      "Use ChatGPT/Copilot to analyze each case and assess failure risk."
+    ], code:`equipment_case = {
+    'Air_Temp_C': 38,
+    'Process_Temp_C': 49,
+    'Torque_Nm': 58,
+    'Vibration_mm_s': 6.1,
+    'Tool_Wear_Min': 210
+}
+for key, value in equipment_case.items():
+    print(key, ':', value)
+# Ask ChatGPT/Copilot: does this case look risky, and why?`,
+    quiz:[
+      {q:"In the sample case, what was the Tool_Wear_Min value?", o:["38","49","210","58"], c:2},
+      {q:"What tool did students use to help analyze the equipment case?", o:["Power BI","ChatGPT/Copilot","Excel formulas only","A calculator"], c:1},
+      {q:"High vibration combined with high tool wear generally suggests:", o:["Normal operation","Elevated failure risk","A software update is needed","Nothing to worry about"], c:1},
+      {q:"What is the purpose of a failure investigation workshop?", o:["To repair real machines","To practice analyzing sample readings for risk","To write unrelated code","To design a dashboard"], c:1},
+      {q:"Which Python structure stored equipment_case's values?", o:["List","Dictionary","Tuple","Set"], c:1}
+    ]},
+    {t:"Day 4 — Build the Maintenance Prompt Library", items:[
+      "Write 10 prompts to analyze sensor readings and generate maintenance recommendations.",
+      "Use the examples in Section 8 of the plan as a starting point."
+    ],
+    quiz:[
+      {q:"How many maintenance prompts were students asked to create?", o:["3","5","10","20"], c:2},
+      {q:"A good maintenance prompt should ask the AI to:", o:["Write unrelated jokes","Analyze readings and suggest maintenance actions","Ignore the data","Only repeat the question"], c:1},
+      {q:"Why build a prompt library instead of one prompt?", o:["To cover different real-world maintenance scenarios","It's required only for grading","To make the notebook longer","No real reason"], c:0},
+      {q:"Which is a useful maintenance prompt?", o:["\"What's the weather today?\"","\"Classify this equipment's risk as Low, Medium, or High and explain why.\"","\"Tell me a story.\"","\"What time is it?\""], c:1},
+      {q:"Prompts in this library are mainly used with:", o:["Power BI","AI assistants like ChatGPT/Copilot","Excel macros","None of the above"], c:1}
+    ]},
+    {t:"Day 5 — Present and Deliver", items:[
+      "Present the dataset understanding report with 5 key variables.",
+      "Present 3 failure scenarios and 10 maintenance prompts."
+    ],
+    quiz:[
+      {q:"What is part of the Week 1 deliverable?", o:["A trained ML model","A dataset understanding report and failure scenarios","A Power BI dashboard","A final certificate"], c:1},
+      {q:"How many failure scenarios are required in Week 1?", o:["1","3","5","10"], c:1},
+      {q:"How many key variables should be highlighted?", o:["2","5","8","15"], c:1},
+      {q:"The Week 1 deliverable does NOT include:", o:["A maintenance prompt library","A trained Random Forest model","A dataset understanding report","Failure scenarios"], c:1},
+      {q:"Presenting your dataset understanding mainly ensures:", o:["You memorized code syntax","You understand the business context before modeling","You skip data exploration","You avoid using AI tools"], c:1}
+    ]}
+  ]
+},
+{
+  title: "Week 2 — Python Fundamentals in Google Colab",
+  goal: "Learn the basic Python skills needed for the project inside Google Colab.",
+  deliverable: "Python basics notebook with exercises tied to maintenance data.",
+  days: [
+    {t:"Day 1 — Getting Familiar with Colab", items:[
+      "Open colab.research.google.com and create a new notebook.",
+      "Learn about code cells, text cells, and the run button.",
+      "Try uploading the dataset file via the Files icon."
+    ], code:`print("Hello Predictive Maintenance")`,
+    quiz:[
+      {q:"What are the two main cell types in Colab?", o:["Code and Text","Header and Footer","Row and Column","Public and Private"], c:0},
+      {q:"Which shortcut runs the current cell?", o:["Ctrl+S","Shift+Enter","Alt+F4","Ctrl+Z"], c:1},
+      {q:"Where do you upload files in Colab?", o:["The Files icon in the sidebar","The Runtime menu","The Help menu","You cannot upload files"], c:0},
+      {q:"What does print(\"Hello Predictive Maintenance\") do?", o:["Saves a file","Displays text as output","Deletes a variable","Connects to Power BI"], c:1},
+      {q:"Google Colab is primarily used in this project for:", o:["Building the Power BI dashboard","Writing and running Python code","Sending emails","Editing Word documents"], c:1}
+    ]},
+    {t:"Day 2 — Variables, Numbers, and Strings", items:[
+      "Practice creating numeric and string variables.",
+      "Use print() to display values and results."
+    ], code:`air_temp = 38
+process_temp = 49
+equipment_type = "Pump"
+print("Air Temperature:", air_temp)
+temp_difference = process_temp - air_temp
+print("Temperature Difference:", temp_difference)`,
+    quiz:[
+      {q:"Which line correctly creates a variable?", o:["38 = air_temp","air_temp = 38","air_temp == 38","var air_temp 38"], c:1},
+      {q:"What data type is \"Pump\" in Python?", o:["Integer","Float","String","Boolean"], c:2},
+      {q:"What does print(\"Air Temperature:\", air_temp) output if air_temp = 38?", o:["Air Temperature:","Air Temperature: 38","38","An error"], c:1},
+      {q:"temp_difference = process_temp - air_temp calculates:", o:["A string","The difference between two numeric values","A dictionary","Nothing"], c:1},
+      {q:"Which of these is a numeric variable?", o:["equipment_type = \"Pump\"","air_temp = 38","\"38\"","None of the above"], c:1}
+    ]},
+    {t:"Day 3 — Lists and Dictionaries", items:[
+      "Practice lists and dictionaries.",
+      "Apply them to real equipment reading examples."
+    ], code:`readings = [38, 49, 58, 6.1, 210]
+equipment = {'type': 'Pump', 'temp': 38, 'vibration': 6.1}
+print(equipment['type'], equipment['vibration'])`,
+    quiz:[
+      {q:"readings = [38, 49, 58, 6.1, 210] is an example of a:", o:["Dictionary","List","String","Function"], c:1},
+      {q:"How do you access 'type' in equipment = {'type': 'Pump', 'temp': 38}?", o:["equipment[0]","equipment.type","equipment['type']","equipment->type"], c:2},
+      {q:"Dictionaries store data as:", o:["Ordered numbers only","Key-value pairs","Plain text only","Images"], c:1},
+      {q:"Which is true about lists in Python?", o:["They can hold multiple values in order","They can only hold one value","They cannot be changed","They only store text"], c:0},
+      {q:"Why use a dictionary instead of a list for equipment data?", o:["Dictionaries are always faster","Dictionaries let you label each value with a name","Lists cannot store numbers","There's no difference"], c:1}
+    ]},
+    {t:"Day 4 — Loops and Functions", items:[
+      "Practice for loops and if statements using risk-threshold examples.",
+      "Write a simple function that flags a risky reading."
+    ], code:`def check_risk(temperature, vibration):
+    if temperature > 35 or vibration > 5:
+        return 'Potential risk detected'
+    return 'Normal condition'
+
+print(check_risk(38, 6.1))`,
+    quiz:[
+      {q:"What does check_risk(38, 6.1) return?", o:["'Normal condition'","'Potential risk detected'","An error","Nothing"], c:1},
+      {q:"A function in Python is defined using:", o:["func","def","function","define"], c:1},
+      {q:"An if statement is used to:", o:["Repeat code multiple times","Make a decision based on a condition","Store a value","Import a library"], c:1},
+      {q:"What keyword starts a loop that repeats over a sequence?", o:["while","for","def","if"], c:1},
+      {q:"Why use a function instead of repeating the same if statement everywhere?", o:["It's required by Python","It lets you reuse the same logic easily","It slows down the code","No real benefit"], c:1}
+    ]},
+    {t:"Day 5 — Complete the Practice Notebook", items:[
+      "Finish the Python basics practice notebook.",
+      "Add a short explanation under each code block."
+    ],
+    quiz:[
+      {q:"What should you add under each code block in your notebook?", o:["Nothing","A short explanation","A random emoji","Another dataset"], c:1},
+      {q:"What is the Week 2 deliverable?", o:["A Power BI dashboard","A Python basics notebook with exercises","A trained ML model","A final presentation"], c:1},
+      {q:"Why explain your code in text cells?", o:["It's decoration only","It shows you understand what the code does","It replaces the need for code","It's not necessary"], c:1},
+      {q:"Which skill is NOT covered in Week 2?", o:["Variables","Loops and functions","Random Forest tuning","Lists and dictionaries"], c:2},
+      {q:"A well-documented notebook mainly helps:", o:["Confuse other readers","You and others understand your work later","Slow down Colab","Nothing"], c:1}
+    ]}
+  ]
+},
+{
+  title: "Week 3 — Data Analytics with Python",
+  goal: "Read, clean, and explore the predictive maintenance dataset using Pandas.",
+  deliverable: "EDA notebook and a data understanding summary.",
+  days: [
+    {t:"Day 1 — Reading the Excel Dataset", items:[
+      "Use Pandas to load the dataset and inspect the first rows."
+    ], code:`import pandas as pd
+file_path = 'Predictive_Maintenance_Training_Dataset_7_Week.xlsx'
+df = pd.read_excel(file_path, sheet_name='Training_Dataset')
+df.head()`,
+    quiz:[
+      {q:"Which library is used to read Excel files in Python?", o:["NumPy","Pandas","Matplotlib","Scikit-learn"], c:1},
+      {q:"pd.read_excel() returns a:", o:["List","DataFrame","Dictionary","String"], c:1},
+      {q:"df.head() shows:", o:["The last rows","The first rows of the DataFrame","Only column names","A chart"], c:1},
+      {q:"What is 'Training_Dataset' in the code?", o:["A file name","A sheet name inside the Excel file","A Python function","A chart type"], c:1},
+      {q:"Why read data with Pandas instead of typing it manually?", o:["Hand-copying is more accurate","Pandas can load and organize large datasets automatically","Pandas cannot read Excel files","There's no reason"], c:1}
+    ]},
+    {t:"Day 2 — Data Types and Missing Values", items:[
+      "Check column types, missing values, duplicates, and basic statistics."
+    ], code:`df.info()
+df.describe()
+df.isnull().sum()
+df.duplicated().sum()`,
+    quiz:[
+      {q:"df.info() shows:", o:["Column data types and non-null counts","A chart","The dataset's file size only","Nothing useful"], c:0},
+      {q:"df.isnull().sum() counts:", o:["Duplicate rows","Missing values per column","Total rows","Data types"], c:1},
+      {q:"df.duplicated().sum() checks for:", o:["Missing values","Duplicate rows","Wrong data types","Column names"], c:1},
+      {q:"df.describe() is most useful for:", o:["Viewing basic statistics like mean and max","Deleting columns","Renaming columns","Uploading files"], c:0},
+      {q:"Why check for missing values before analysis?", o:["It's optional and rarely matters","Missing data can bias results if ignored","Missing values improve accuracy","Pandas cannot handle missing data"], c:1}
+    ]},
+    {t:"Day 3 — Exploring Key Columns", items:[
+      "Explore Machine_Failure, Failure_Type, Risk_Level, Vibration, Torque, and Tool_Wear_Min."
+    ], code:`df['Machine_Failure'].value_counts()
+df['Risk_Level'].value_counts()`,
+    quiz:[
+      {q:"df['Machine_Failure'].value_counts() shows:", o:["The count of each unique value in that column","The average of the column","A dashboard","A trained model"], c:0},
+      {q:"Risk_Level in this dataset likely represents:", o:["A price","A category like Low, Medium, or High risk","A date","A file size"], c:1},
+      {q:"Which column indicates whether a machine actually failed?", o:["Torque_Nm","Machine_Failure","Equipment_Type","Quality_Type"], c:1},
+      {q:"Exploring Vibration and Tool_Wear_Min helps you:", o:["Understand possible drivers of failure","Change the dataset's file format","Connect to Power BI","Train the model automatically"], c:0},
+      {q:"Why explore individual columns before modeling?", o:["To understand data patterns and quality first","It's not necessary","To skip data cleaning","To avoid using Pandas"], c:0}
+    ]},
+    {t:"Day 4 — Grouping and Filtering", items:[
+      "Group the data by equipment type to understand failure patterns."
+    ], code:`df.groupby('Equipment_Type')['Machine_Failure'].mean().sort_values(ascending=False)`,
+    quiz:[
+      {q:"df.groupby('Equipment_Type')['Machine_Failure'].mean() calculates:", o:["Total failures only","The average failure rate per equipment type","A random sample","Nothing"], c:1},
+      {q:"Grouping data by equipment type helps identify:", o:["Which browser was used","Which equipment types fail more often","The weather","File size"], c:1},
+      {q:"sort_values(ascending=False) sorts results:", o:["From smallest to largest","From largest to smallest","Alphabetically only","Randomly"], c:1},
+      {q:"Why filter and group data before modeling?", o:["To spot patterns that guide feature selection","It's purely decorative","To make the dataset larger","It has no real use"], c:0},
+      {q:"Which method groups rows sharing the same value in a column?", o:[".sort_values()",".groupby()",".head()",".describe()"], c:1}
+    ]},
+    {t:"Day 5 — Summarize Your Understanding", items:[
+      "Prepare a clean EDA notebook and summarize what each field means."
+    ],
+    quiz:[
+      {q:"What is the Week 3 deliverable?", o:["A Power BI dashboard","An EDA notebook and data summary","A trained ML model","A final presentation"], c:1},
+      {q:"EDA stands for:", o:["Equipment Data Analysis","Exploratory Data Analysis","External Data Access","Estimated Data Accuracy"], c:1},
+      {q:"Why summarize what each field means at the end of EDA?", o:["To confuse readers","To document your understanding clearly for others","It's required only for grading","No real reason"], c:1},
+      {q:"A good EDA notebook should include:", o:["Only code with no explanation","Data checks, exploration, and a summary","A finished ML model","A finished dashboard"], c:1},
+      {q:"The main goal of Week 3 is to:", o:["Build the final model","Understand and prepare the dataset","Deliver the final demo","Design the presentation slides"], c:1}
+    ]}
+  ]
+},
+{
+  title: "Week 4 — Visualization, Power BI Dashboard, and Business Insights",
+  goal: "Create Python charts and a basic Power BI dashboard to communicate maintenance insights.",
+  deliverable: "Visualization notebook, Power BI dashboard, and 5–10 business insights.",
+  days: [
+    {t:"Day 1 — Basic Matplotlib Charts", items:[
+      "Chart machine failure distribution and failure rate by equipment type."
+    ], code:`import matplotlib.pyplot as plt
+df['Machine_Failure'].value_counts().plot(kind='bar')
+plt.title('Machine Failure Distribution')
+plt.show()`,
+    quiz:[
+      {q:"Which library is used for basic charts in Colab?", o:["Power BI","Matplotlib","Scikit-learn","Word"], c:1},
+      {q:"df['Machine_Failure'].value_counts().plot(kind='bar') creates:", o:["A line chart","A bar chart of failure counts","A pie chart only","A map"], c:1},
+      {q:"A bar chart of failure rate by equipment type helps you see:", o:["Which equipment type fails most often","The weather forecast","Employee schedules","Nothing useful"], c:0},
+      {q:"plt.title() is used to:", o:["Save the chart as a file","Add a title to the chart","Delete the chart","Change the data"], c:1},
+      {q:"Why visualize data before building a model?", o:["Charts reveal patterns numbers alone can hide","It's not useful","It replaces the need for data cleaning","It trains the model automatically"], c:0}
+    ]},
+    {t:"Day 2 — Open the Dataset in Power BI", items:[
+      "Open Power BI Desktop and load the Training_Dataset table from the Excel file."
+    ],
+    quiz:[
+      {q:"Power BI Desktop is mainly used for:", o:["Writing Python code","Building business dashboards and visuals","Training ML models","Sending emails"], c:1},
+      {q:"What do you load into Power BI for this project?", o:["The ipynb notebook","The Training_Dataset table from the Excel file","A PDF report","A PowerPoint file"], c:1},
+      {q:"Why use Power BI in addition to Python charts?", o:["It's identical to Matplotlib","It offers interactive dashboards for non-technical audiences","It replaces Python entirely","It cannot use Excel data"], c:1},
+      {q:"Power BI Desktop mainly runs on:", o:["A phone browser only","Windows as a desktop application","It's not needed for the project","A code editor"], c:1},
+      {q:"What must you do first before building Power BI visuals?", o:["Train a model","Load the dataset into Power BI","Delete the dataset","Write Python code"], c:1}
+    ]},
+    {t:"Day 3 — Build a Basic Power BI Dashboard", items:[
+      "Build an Overview page, a Failure Analysis page, and a Sensor Insights page (see Section 6 of the plan)."
+    ],
+    quiz:[
+      {q:"How many main pages does the required Power BI dashboard have?", o:["1","3","5","10"], c:1},
+      {q:"The Failure Analysis page should include:", o:["Sensor readings only","Failure type breakdown and failure rate by equipment type","Employee names","Weather data"], c:1},
+      {q:"The Sensor Insights page focuses on:", o:["Vibration, torque, tool wear, and temperature trends","Company finances","Marketing data","Employee attendance"], c:0},
+      {q:"What is the goal of the dashboard according to the plan?", o:["To build a highly complex BI solution","To communicate insights clearly and simply","To replace the ML model","To store raw data only"], c:1},
+      {q:"The Maintenance Overview page should show:", o:["Total records, failure count, and risk level distribution","Only a logo","Random text","Employee schedules"], c:0}
+    ]},
+    {t:"Day 4 — Write Business Insights", items:[
+      "Write 5 to 10 business insights based on both Colab charts and Power BI visuals."
+    ],
+    quiz:[
+      {q:"How many business insights are students asked to write?", o:["1 to 2","5 to 10","20 to 30","None"], c:1},
+      {q:"A good business insight should be based on:", o:["Guesswork","Both Colab charts and Power BI visuals","Random opinions","Social media trends"], c:1},
+      {q:"Which is an example of a business insight?", o:["\"The button is blue.\"","\"Pumps show the highest failure rate among all equipment types.\"","\"Colab is a website.\"","\"Python uses indentation.\""], c:1},
+      {q:"Why connect insights to both Python charts and Power BI?", o:["To cross-check findings across tools","It's required for no real reason","Power BI cannot show insights","Python charts are inaccurate"], c:0},
+      {q:"Business insights are mainly meant to help:", o:["Only programmers","Maintenance decision-makers understand the data","No one in particular","Replace the dashboard"], c:1}
+    ]},
+    {t:"Day 5 — Present the Dashboard", items:[
+      "Present the Power BI dashboard and explain the most important maintenance insights."
+    ],
+    quiz:[
+      {q:"What is the Week 4 deliverable?", o:["A trained ML model","A visualization notebook, Power BI dashboard, and business insights","A final PowerPoint","A data dictionary only"], c:1},
+      {q:"When presenting the dashboard, you should focus on:", o:["Technical code details only","The most important maintenance insights","Unrelated topics","Only colors used"], c:1},
+      {q:"Which of these belongs in the Week 4 deliverable?", o:["Confusion matrix","5 to 10 business insights","Recommendation logic","Final live demo"], c:1},
+      {q:"A dashboard presentation should be understandable to:", o:["Only expert programmers","Business and maintenance stakeholders","No one","Only the presenter"], c:1},
+      {q:"The main purpose of Week 4 is to:", o:["Train the final ML model","Turn data into visual insights for decision-making","Deliver the live demo","Tune hyperparameters"], c:1}
+    ]}
+  ]
+},
+{
+  title: "Week 5 — Machine Learning for Failure Prediction",
+  goal: "Train simple models to predict machine failure (Machine_Failure).",
+  deliverable: "Decision Tree baseline, Random Forest model, and an initial evaluation summary.",
+  days: [
+    {t:"Day 1 — Define Features and Target", items:[
+      "Identify the input features and the target variable Machine_Failure."
+    ], code:`features = ['Equipment_Type','Quality_Type','Air_Temp_C','Process_Temp_C',
+            'Rotational_Speed_RPM','Torque_Nm','Tool_Wear_Min','Vibration_mm_s','Pressure_bar']
+target = 'Machine_Failure'
+X = df[features]
+y = df[target]`,
+    quiz:[
+      {q:"In this project, the target variable is:", o:["Equipment_Type","Machine_Failure","Torque_Nm","Vibration_mm_s"], c:1},
+      {q:"Features are:", o:["The variable you're trying to predict","The input variables used to make a prediction","Random noise","Chart colors"], c:1},
+      {q:"Which of these is a categorical feature in this dataset?", o:["Torque_Nm","Equipment_Type","Vibration_mm_s","Tool_Wear_Min"], c:1},
+      {q:"X = df[features] creates:", o:["The target column only","A DataFrame containing only the input features","A chart","A trained model"], c:1},
+      {q:"Why separate features (X) and target (y) before modeling?", o:["It's required by the model training process","It's not necessary","To make the dataset smaller","To delete missing values"], c:0}
+    ]},
+    {t:"Day 2 — Prepare the Data for Modeling", items:[
+      "Encode categorical columns and split the data into train/test sets."
+    ], code:`from sklearn.model_selection import train_test_split
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder
+
+categorical = ['Equipment_Type','Quality_Type']
+numeric = [c for c in features if c not in categorical]
+preprocess = ColumnTransformer([
+    ('cat', OneHotEncoder(handle_unknown='ignore'), categorical),
+    ('num', 'passthrough', numeric)
+])
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)`,
+    quiz:[
+      {q:"OneHotEncoder is used to:", o:["Scale numeric values","Convert categorical columns into numeric format","Delete missing values","Draw charts"], c:1},
+      {q:"train_test_split divides data into:", o:["Two random unrelated datasets","A training set and a testing set","Only a training set","Only a testing set"], c:1},
+      {q:"Why use stratify=y in train_test_split?", o:["To keep class balance similar in train and test sets","To sort the data alphabetically","To remove the target column","It has no effect"], c:0},
+      {q:"ColumnTransformer is used to:", o:["Apply different preprocessing to different columns","Delete columns","Train the model","Build charts"], c:0},
+      {q:"test_size=0.2 means:", o:["20% of data is used for testing","20% of columns are removed","The model trains for 20 seconds","2% of data is used"], c:0}
+    ]},
+    {t:"Day 3 — Baseline Decision Tree", items:[
+      "Train a Decision Tree model as a simple baseline."
+    ], code:`from sklearn.pipeline import Pipeline
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score
+
+baseline = Pipeline([('preprocess', preprocess),
+                      ('classifier', DecisionTreeClassifier(random_state=42, class_weight='balanced'))])
+baseline.fit(X_train, y_train)
+pred = baseline.predict(X_test)
+print('Baseline Accuracy:', accuracy_score(y_test, pred))`,
+    quiz:[
+      {q:"A Decision Tree model in this project is used as:", o:["The final model only","A simple baseline for comparison","A dashboard tool","A data cleaning tool"], c:1},
+      {q:"class_weight='balanced' helps when:", o:["The dataset has an equal number of both classes","There is an imbalance between failure and non-failure cases","There are no categorical features","The model is already perfect"], c:1},
+      {q:"accuracy_score compares:", o:["Predicted values vs actual values","Two different datasets","Feature importance","Chart colors"], c:0},
+      {q:"Why start with a baseline model before a more complex one?", o:["To have a reference point for comparison","It's not useful","Baselines are always the final model","To skip evaluation"], c:0},
+      {q:"model.fit(X_train, y_train) is used to:", o:["Evaluate the model","Train the model on the training data","Delete the model","Visualize the data"], c:1}
+    ]},
+    {t:"Day 4 — Random Forest Model", items:[
+      "Train a Random Forest model and compare it against the baseline."
+    ], code:`from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report
+
+model = Pipeline([('preprocess', preprocess),
+                   ('classifier', RandomForestClassifier(n_estimators=150, random_state=42, class_weight='balanced'))])
+model.fit(X_train, y_train)
+pred = model.predict(X_test)
+print('Random Forest Accuracy:', accuracy_score(y_test, pred))`,
+    quiz:[
+      {q:"A Random Forest model is made up of:", o:["A single decision tree","Multiple decision trees combined","Only numeric features","No trees at all"], c:1},
+      {q:"n_estimators=150 refers to:", o:["The number of trees in the forest","The number of features","The number of rows in the dataset","The test size"], c:0},
+      {q:"Why might Random Forest outperform a single Decision Tree?", o:["It combines multiple trees to reduce overfitting","It always uses less data","It ignores the target variable","It cannot handle categorical data"], c:0},
+      {q:"classification_report typically includes:", o:["Precision, recall, and F1-score","Only accuracy","Chart colors","File size"], c:0},
+      {q:"predict(X_test) is used to:", o:["Train the model","Generate predictions on unseen data","Delete the test set","Visualize the dataset"], c:1}
+    ]},
+    {t:"Day 5 — Initial Evaluation", items:[
+      "Evaluate the model using Accuracy, Precision, Recall, and the confusion matrix."
+    ], code:`from sklearn.metrics import confusion_matrix
+print(confusion_matrix(y_test, pred))`,
+    quiz:[
+      {q:"A confusion matrix shows:", o:["Correct and incorrect predictions broken down by class","A chart of sales","A list of column names","The dataset's file size"], c:0},
+      {q:"What is the Week 5 deliverable?", o:["A final presentation","A Decision Tree baseline, Random Forest model, and evaluation summary","A Power BI dashboard only","A prompt library"], c:1},
+      {q:"Recall measures:", o:["How many actual failures were correctly identified","How fast the model runs","The number of features used","The size of the dataset"], c:0},
+      {q:"Precision measures:", o:["How many predicted failures were actually correct","How many rows are in the dataset","The model's training time","The number of trees"], c:0},
+      {q:"Why evaluate a model using multiple metrics instead of accuracy alone?", o:["Accuracy alone can be misleading with imbalanced data","It's not necessary","Other metrics are always identical to accuracy","There's no benefit"], c:0}
+    ]}
+  ]
+},
+{
+  title: "Week 6 — Evaluation and Optimization",
+  goal: "Evaluate model performance, analyze errors, improve features/settings, and finalize the recommendation logic.",
+  deliverable: "Model evaluation report, before/after comparison, improved model results, and final recommendation logic.",
+  days: [
+    {t:"Day 1 — Understand Evaluation Metrics", items:[
+      "Explain Accuracy, Precision, Recall, and the confusion matrix in maintenance terms."
+    ],
+    quiz:[
+      {q:"In maintenance terms, a false negative means:", o:["Predicting a failure that didn't happen","Missing a real failure","Correctly predicting no failure","Correctly predicting a failure"], c:1},
+      {q:"A false positive in this context means:", o:["Predicting a failure that doesn't actually happen","Missing a real failure","A correct prediction","A dataset error"], c:0},
+      {q:"Accuracy alone can be misleading when:", o:["The classes are perfectly balanced","The dataset is imbalanced, e.g., few failures vs many normal cases","There is no target variable","The dataset has no features"], c:1},
+      {q:"F1-score combines:", o:["Precision and Recall","Accuracy and dataset size","Torque and vibration","Two unrelated metrics"], c:0},
+      {q:"Why explain metrics in maintenance language?", o:["To make results meaningful to non-technical stakeholders","It's purely academic","Numbers don't need context","No real reason"], c:0}
+    ]},
+    {t:"Day 2 — Error Analysis", items:[
+      "Analyze false positives and false negatives.",
+      "Discuss which type of error is more critical for maintenance decisions."
+    ], note:"A false negative (missing a real failure) is usually more dangerous than a false positive in predictive maintenance.",
+    quiz:[
+      {q:"In predictive maintenance, which error type is usually more dangerous?", o:["False positive","False negative","Both are equally harmless","Neither matters"], c:1},
+      {q:"A false negative in maintenance could lead to:", o:["An unnecessary inspection","A missed failure and unexpected downtime","Extra dashboard pages","Faster model training"], c:1},
+      {q:"A false positive in maintenance could lead to:", o:["An unnecessary but safe inspection","A missed real failure","No consequence at all","Model deletion"], c:0},
+      {q:"Why analyze false positives and negatives separately?", o:["They have different business costs and implications","They are always equally costly","It's not useful","To make the report longer"], c:0},
+      {q:"Discussing errors from a business perspective means:", o:["Ignoring technical metrics entirely","Connecting model errors to real-world consequences and costs","Only discussing accuracy","Avoiding the confusion matrix"], c:1}
+    ]},
+    {t:"Day 3 — Improve the Feature Set", items:[
+      "Try different input variables and observe their impact on results."
+    ],
+    quiz:[
+      {q:"Feature engineering/selection involves:", o:["Testing different input variables to improve results","Deleting the target variable","Changing the programming language","Randomizing the dataset"], c:0},
+      {q:"Why test different combinations of features?", o:["To see which combination improves model performance","It's purely cosmetic","Features never affect model performance","To make the notebook longer"], c:0},
+      {q:"Removing an irrelevant feature can:", o:["Sometimes improve model performance","Always break the model","Have no possible effect","Delete the dataset"], c:0},
+      {q:"A feature with little relationship to the target may:", o:["Add noise without much predictive value","Always be essential","Automatically improve accuracy","Replace the target variable"], c:0},
+      {q:"This step typically happens:", o:["After the initial baseline evaluation","Before loading the dataset","Before defining the target variable","After the final presentation"], c:0}
+    ]},
+    {t:"Day 4 — Tune Random Forest Settings", items:[
+      "Try different tree counts and depths, and compare before/after results."
+    ], code:`optimized_model = Pipeline([('preprocess', preprocess),
+    ('classifier', RandomForestClassifier(n_estimators=300, max_depth=8, random_state=42, class_weight='balanced'))])
+optimized_model.fit(X_train, y_train)
+opt_pred = optimized_model.predict(X_test)
+print('Optimized Accuracy:', accuracy_score(y_test, opt_pred))`,
+    quiz:[
+      {q:"max_depth in a Random Forest controls:", o:["How many trees exist","How deep each tree can grow","The dataset size","The number of features"], c:1},
+      {q:"Increasing n_estimators from 150 to 300 generally:", o:["Always guarantees better accuracy","May improve stability but increases computation time","Deletes the model","Has no effect at all"], c:1},
+      {q:"Comparing before/after tuning results helps you:", o:["See whether changes actually improved performance","Skip evaluation entirely","Avoid using metrics","Replace the dataset"], c:0},
+      {q:"Hyperparameter tuning refers to:", o:["Adjusting model settings like depth or number of trees","Changing the dataset's file format","Renaming columns","Editing the Power BI dashboard"], c:0},
+      {q:"Why tune on the same train/test split as the baseline?", o:["For a fair before/after comparison","It's not important","To make results random","To avoid using class_weight"], c:0}
+    ]},
+    {t:"Day 5 — Finalize the Recommendation Logic", items:[
+      "Link failure probability to risk level and a recommendation.",
+      "Write a short evaluation and optimization report."
+    ], code:`if probability >= 0.7:
+    print('Recommendation: Immediate inspection recommended.')
+elif probability >= 0.4:
+    print('Recommendation: Schedule preventive inspection.')
+else:
+    print('Recommendation: Continue normal monitoring.')`,
+    quiz:[
+      {q:"What is the Week 6 deliverable?", o:["A final PowerPoint only","A model evaluation report, before/after comparison, and final recommendation logic","A raw dataset","A prompt library"], c:1},
+      {q:"A high failure probability (e.g. ≥0.7) typically leads to:", o:["Continue normal monitoring","Immediate inspection recommended","Ignore the reading","Delete the record"], c:1},
+      {q:"A moderate probability (e.g. 0.4–0.7) typically leads to:", o:["Immediate shutdown","Schedule a preventive inspection","No action","Retrain the entire model"], c:1},
+      {q:"The recommendation logic links:", o:["Failure probability to risk level and a suggested action","Employee names to shifts","File size to accuracy","Chart colors to metrics"], c:0},
+      {q:"Why finalize recommendation logic in Week 6, before the demo?", o:["So the final demo has clear, ready-to-use business logic","It's not necessary before the demo","Recommendations don't need logic","To skip Week 7"], c:0}
+    ]}
+  ]
+},
+{
+  title: "Week 7 — Final AI Maintenance Advisor Demo",
+  goal: "Combine the ML model, Power BI dashboard, recommendation logic, and final presentation.",
+  deliverable: "Final Colab demo, Power BI dashboard screenshots, a live demo, and a 5–7 slide presentation.",
+  days: [
+    {t:"Day 1 — Prepare the Final Demo Input Section", items:[
+      "Build an input section that lets you change equipment readings manually."
+    ],
+    quiz:[
+      {q:"The final demo's input section should let you:", o:["View sensor data only","Manually change equipment readings to test the model","Delete the dataset","Edit Power BI colors"], c:1},
+      {q:"Why build a flexible input section for the demo?", o:["To let users test different scenarios live","It's not useful","To hide the model","To skip the dashboard"], c:0},
+      {q:"What kind of readings should the input section accept?", o:["Temperature, vibration, torque, pressure, tool wear","Only employee names","Only file paths","Only dates"], c:0},
+      {q:"The input section is built inside:", o:["Power BI","Google Colab","PowerPoint","A spreadsheet only"], c:1},
+      {q:"A well-designed input section makes the demo:", o:["More interactive and convincing","Less useful","Impossible to run","Only usable by programmers"], c:0}
+    ]},
+    {t:"Day 2 — Connect the Optimized Model to the Demo", items:[
+      "Show prediction, probability, risk level, and recommendation together."
+    ], code:`prediction = optimized_model.predict(sample)[0]
+probability = optimized_model.predict_proba(sample)[0][1]
+print('Prediction:', 'Failure' if prediction == 1 else 'No Failure')
+print('Failure Probability:', round(probability*100,1), '%')`,
+    quiz:[
+      {q:"predict_proba() returns:", o:["The predicted class label only","The probability of each class","The dataset","A chart"], c:1},
+      {q:"In the final demo, the output should include:", o:["Prediction, probability, risk level, and recommendation","Only raw sensor values","Only a chart","Only the dataset"], c:0},
+      {q:"Which model is used in the final demo?", o:["The very first baseline model","The optimized/final model from Week 6","A brand-new untested model","No model at all"], c:1},
+      {q:"probability*100 rounded gives:", o:["A percentage estimate of failure risk","A row count","A file size","A column name"], c:0},
+      {q:"Why show both prediction and probability?", o:["Probability adds nuance about confidence and risk level","It's not necessary","Probability replaces the prediction","They mean the same thing"], c:0}
+    ]},
+    {t:"Day 3 — Finalize the Power BI Dashboard", items:[
+      "Capture dashboard screenshots for the presentation."
+    ],
+    quiz:[
+      {q:"What should you capture from Power BI for the presentation?", o:["Source code","Dashboard screenshots","Sensor calibration logs","Employee records"], c:1},
+      {q:"Why finalize the dashboard before the presentation?", o:["So it accurately reflects your final insights","It's not necessary","The dashboard is unrelated to the presentation","To replace the ML model"], c:0},
+      {q:"The Power BI dashboard should summarize:", o:["Key historical insights from the dataset","Only employee schedules","Random unrelated data","Nothing important"], c:0},
+      {q:"Screenshots are useful because:", o:["Power BI files can't always be opened live during a demo","They are decorative only","They replace the dataset","They are required by law"], c:0},
+      {q:"Which dashboard page focuses on sensor trends?", o:["Maintenance Overview","Sensor Insights","Failure Analysis only","None of them"], c:1}
+    ]},
+    {t:"Day 4 — Prepare the Final Presentation", items:[
+      "Build a 5–7 slide deck: problem statement, dataset overview, insights, ML model, optimization, dashboard, and demo results."
+    ],
+    quiz:[
+      {q:"How many slides should the final presentation have?", o:["1 to 2","5 to 7","20 to 30","Exactly 1"], c:1},
+      {q:"Which of these should NOT be part of the final presentation?", o:["Problem statement","Dataset overview","Unrelated personal photos","ML model results"], c:2},
+      {q:"The presentation should include results from:", o:["Only Week 7","The full project: data, model, optimization, and dashboard","Only the dashboard","Only the code"], c:1},
+      {q:"What software is used to build the final presentation?", o:["Power BI","PowerPoint","Google Colab","Excel"], c:1},
+      {q:"A strong final presentation should clearly show:", o:["Business impact and how the solution helps maintenance decisions","Only code snippets","Only chart colors","Nothing about the dataset"], c:0}
+    ]},
+    {t:"Day 5 — Live Demo and Final Delivery", items:[
+      "Deliver the live demo and a project learning summary."
+    ],
+    quiz:[
+      {q:"What is the main goal of the Week 7 final demo?", o:["To install new software","To present a complete predictive maintenance solution combining data, model, and dashboard insights","To learn a new programming language","To grade other students"], c:1},
+      {q:"What is the Week 7 deliverable?", o:["A final Colab demo, dashboard screenshots, live demo, and presentation","Only a Python script","Only a dataset","Only a quiz"], c:0},
+      {q:"A learning summary at the end of the program should reflect:", o:["What you learned throughout the entire 7 weeks","Only Week 7 content","Someone else's work","Nothing specific"], c:0},
+      {q:"The final live demo should show the model:", o:["Working with adjustable equipment readings in real time","As a static screenshot only","Disconnected from any data","Without any explanation"], c:0},
+      {q:"Completing this program means you can now:", o:["Only write basic Python","Take a maintenance dataset from raw data to a working AI-supported demo","Only build dashboards","Only give presentations"], c:1}
+    ]}
+  ]
+}
+];
+
+const TOTAL_DAYS = DATA.reduce((s,w)=>s+w.days.length,0);
+let currentStudent = null;
+
+function studentKey(name){ return 'pm_student_' + name.trim().toLowerCase(); }
+
+function loadStudentList(){
+  const list = JSON.parse(localStorage.getItem('pm_students_list') || '[]');
+  const dl = document.getElementById('nameList');
+  dl.innerHTML = list.map(n => `<option value="${n}">`).join('');
+}
+function saveStudentToList(name){
+  const list = JSON.parse(localStorage.getItem('pm_students_list') || '[]');
+  if(!list.includes(name)){ list.push(name); localStorage.setItem('pm_students_list', JSON.stringify(list)); }
+  loadStudentList();
+}
+
+function getStudentData(){
+  if(!currentStudent) return {scores:{}, doneDays:{}};
+  const raw = localStorage.getItem(studentKey(currentStudent));
+  return raw ? JSON.parse(raw) : {scores:{}, doneDays:{}};
+}
+function saveStudentData(data){
+  if(!currentStudent) return;
+  localStorage.setItem(studentKey(currentStudent), JSON.stringify(data));
+}
+
+function setStudent(){
+  const val = document.getElementById('nameInput').value.trim();
+  if(!val){ alert('Please type a name first.'); return; }
+  currentStudent = val;
+  saveStudentToList(val);
+  localStorage.setItem('pm_active_student', val);
+  document.getElementById('activeName').textContent = 'Active: ' + val;
+  document.getElementById('nameInput').value = val;
+  renderAll();
+}
+
+const nav = document.getElementById('weekNav');
+const container = document.getElementById('weeksContainer');
+
+function buildStatic(){
+  DATA.forEach((week, wi)=>{
+    const btn = document.createElement('button');
+    btn.textContent = 'Week ' + (wi+1);
+    btn.className = wi===0 ? 'active' : '';
+    btn.onclick = ()=> showWeek(wi);
+    nav.appendChild(btn);
+
+    const block = document.createElement('div');
+    block.className = 'week-block' + (wi===0 ? ' active':'');
+    block.id = 'week-'+wi;
+
+    let daysHtml = '';
+    week.days.forEach((day, di)=>{
+      const dayId = wi+'-'+di;
+      const isLastDay = (wi === DATA.length-1 && di === week.days.length-1);
+      let quizHtml = '<div class="quiz-box"><h4>Quick check — 5 questions</h4>';
+      day.quiz.forEach((qq, qi)=>{
+        quizHtml += `<div class="qitem" data-day="${dayId}" data-qi="${qi}" data-correct="${qq.c}">
+          <p class="qtext">${qi+1}. ${qq.q}</p>`;
+        qq.o.forEach((opt, oi)=>{
+          quizHtml += `<label><input type="radio" name="q-${dayId}-${qi}" value="${oi}"> ${opt}</label>`;
+        });
+        quizHtml += `</div>`;
+      });
+      quizHtml += `<button class="submit-quiz" id="submit-${dayId}" onclick="submitQuiz('${dayId}')">Submit answers</button>
+        <div class="quiz-result" id="result-${dayId}" style="display:none;"></div></div>`;
+
+      daysHtml += `
+      <div class="day" id="day-${dayId}">
+        <div class="day-head" onclick="toggleDay('${dayId}')">
+          <div class="day-title">
+            <div class="day-badge" id="badge-${dayId}">${di+1}</div>
+            <h3>${day.t}</h3>
+          </div>
+          <span class="chev">&#9662;</span>
+        </div>
+        <div class="day-body">
+          <ul>${day.items.map(it=>`<li>${it}</li>`).join('')}</ul>
+          ${day.code ? `<div class="code-block">${escapeHtml(day.code)}</div>` : ''}
+          ${day.note ? `<div class="note">${day.note}</div>` : ''}
+          ${quizHtml}
+          ${isLastDay ? `<div id="reportSlot"></div>` : ''}
+        </div>
+      </div>`;
+    });
+
+    block.innerHTML = `
+      <div class="week-head">
+        <span class="week-num">W${wi+1}</span>
+        <h2>${week.title}</h2>
+      </div>
+      <p class="week-goal">${week.goal}</p>
+      ${daysHtml}
+      <div class="deliverable"><b>Deliverable: </b>${week.deliverable}</div>
+    `;
+    container.appendChild(block);
+  });
+}
+
+function showWeek(idx){
+  document.querySelectorAll('.week-block').forEach((el,i)=> el.classList.toggle('active', i===idx));
+  document.querySelectorAll('#weekNav button').forEach((el,i)=> el.classList.toggle('active', i===idx));
+}
+
+function toggleDay(id){
+  const el = document.getElementById('day-'+id);
+  const body = el.querySelector('.day-body');
+  el.classList.toggle('open');
+  if(el.classList.contains('open')){
+    body.style.maxHeight = body.scrollHeight + 60 + 'px';
+  } else {
+    body.style.maxHeight = 0;
+  }
+}
+
+function submitQuiz(dayId){
+  if(!currentStudent){ alert('Please enter your name first.'); return; }
+  const items = document.querySelectorAll(`.qitem[data-day="${dayId}"]`);
+  let unanswered = 0;
+  items.forEach(item=>{
+    const qi = item.getAttribute('data-qi');
+    const checked = item.querySelector(`input[name="q-${dayId}-${qi}"]:checked`);
+    if(!checked) unanswered++;
+  });
+  if(unanswered > 0){
+    alert('Please answer all 5 questions before submitting.');
+    return;
+  }
+  let score = 0;
+  items.forEach(item=>{
+    const qi = item.getAttribute('data-qi');
+    const correct = parseInt(item.getAttribute('data-correct'),10);
+    const checked = item.querySelector(`input[name="q-${dayId}-${qi}"]:checked`);
+    const chosen = parseInt(checked.value,10);
+    if(chosen === correct) score++;
+    item.querySelectorAll('label').forEach(lbl=>{
+      const input = lbl.querySelector('input');
+      const val = parseInt(input.value,10);
+      input.disabled = true;
+      if(val === correct) lbl.classList.add('correct-ans');
+      else if(val === chosen) lbl.classList.add('wrong-ans');
+    });
+  });
+
+  document.getElementById('submit-'+dayId).disabled = true;
+  const resultEl = document.getElementById('result-'+dayId);
+  resultEl.style.display = 'block';
+  resultEl.textContent = 'Score: ' + score + ' / 5';
+  resultEl.className = 'quiz-result ' + (score>=4?'good':score>=3?'mid':'low');
+
+  const data = getStudentData();
+  data.scores[dayId] = score;
+  data.doneDays[dayId] = true;
+  saveStudentData(data);
+
+  document.getElementById('badge-'+dayId).classList.add('done');
+  updateProgress();
+  if(dayId === '6-4') renderReport();
+}
+
+function updateProgress(){
+  const data = getStudentData();
+  const done = Object.keys(data.doneDays).length;
+  const pct = Math.round((done/TOTAL_DAYS)*100);
+  document.getElementById('barFill').style.width = pct+'%';
+  document.getElementById('pctLabel').textContent = done + ' / ' + TOTAL_DAYS + ' days · ' + pct + '%';
+}
+
+function renderReport(){
+  const slot = document.getElementById('reportSlot');
+  if(!slot) return;
+  const data = getStudentData();
+  const doneCount = Object.keys(data.doneDays).length;
+  if(doneCount < TOTAL_DAYS){
+    slot.innerHTML = `<div class="locked-msg">Complete all 35 days' quizzes to unlock your final report. Progress so far: ${doneCount} / ${TOTAL_DAYS} days.</div>`;
+    return;
+  }
+  let totalScore = 0, maxScore = 0, rows = '';
+  DATA.forEach((week, wi)=>{
+    let weekScore = 0, weekMax = 0;
+    week.days.forEach((d, di)=>{
+      const s = data.scores[wi+'-'+di] || 0;
+      weekScore += s; weekMax += 5;
+    });
+    totalScore += weekScore; maxScore += weekMax;
+    const topic = week.title.includes('—') ? week.title.split('—')[1].trim() : week.title;
+    rows += `<tr><td>Week ${wi+1}</td><td>${topic}</td><td>${weekScore} / ${weekMax}</td><td>${Math.round((weekScore/weekMax)*100)}%</td></tr>`;
+  });
+  const overallPct = Math.round((totalScore/maxScore)*100);
+  slot.innerHTML = `
+    <div class="report-box">
+      <h3>Final report — ${escapeHtml(currentStudent)}</h3>
+      <p class="sub">Predictive Maintenance Track · 7-Week AI Co-op Program</p>
+      <div class="report-summary">
+        <div class="report-stat">Days completed<b>${doneCount} / ${TOTAL_DAYS}</b></div>
+        <div class="report-stat">Total quiz score<b>${totalScore} / ${maxScore}</b></div>
+        <div class="report-stat">Overall score<b>${overallPct}%</b></div>
+      </div>
+      <table class="report-table">
+        <tr><th>Week</th><th>Topic</th><th>Score</th><th>%</th></tr>
+        ${rows}
+      </table>
+      <button class="print-btn" onclick="window.print()">Print / save report as PDF</button>
+    </div>`;
+}
+
+function escapeHtml(str){
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderAll(){
+  updateProgress();
+  const data = getStudentData();
+  Object.keys(data.doneDays).forEach(dayId=>{
+    const badge = document.getElementById('badge-'+dayId);
+    if(badge) badge.classList.add('done');
+    const items = document.querySelectorAll(`.qitem[data-day="${dayId}"]`);
+    items.forEach(item=>{
+      const correct = parseInt(item.getAttribute('data-correct'),10);
+      item.querySelectorAll('input').forEach(inp=> inp.disabled = true);
+      item.querySelectorAll('label').forEach(lbl=>{
+        const val = parseInt(lbl.querySelector('input').value,10);
+        if(val === correct) lbl.classList.add('correct-ans');
+      });
+    });
+    const submitBtn = document.getElementById('submit-'+dayId);
+    if(submitBtn) submitBtn.disabled = true;
+    const resultEl = document.getElementById('result-'+dayId);
+    if(resultEl){
+      const score = data.scores[dayId] || 0;
+      resultEl.style.display = 'block';
+      resultEl.textContent = 'Score: ' + score + ' / 5';
+      resultEl.className = 'quiz-result ' + (score>=4?'good':score>=3?'mid':'low');
+    }
+  });
+  renderReport();
+}
+
+buildStatic();
+loadStudentList();
+const savedActive = localStorage.getItem('pm_active_student');
+if(savedActive){
+  currentStudent = savedActive;
+  document.getElementById('nameInput').value = savedActive;
+  document.getElementById('activeName').textContent = 'Active: ' + savedActive;
+  renderAll();
+}
+</script>
+</body>
+</html>
