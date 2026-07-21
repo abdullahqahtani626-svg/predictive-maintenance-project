@@ -234,10 +234,11 @@
   <div class="hero-inner">
     <p class="eyebrow">AI Co-op Internship — Predictive Maintenance Track</p>
     <h1>Your interactive step-by-step guide</h1>
-    <p>From Day 1 of Week 1 to the final day of Week 7 — every day has a clear goal, practical steps, and ready-to-run code.</p>
+    <p>From Day 1 of Week 1 to the final day of Week 7 — every day has a clear goal, practical steps, and ready-to-run code, now built on the enhanced industrial dataset (Equipment Master, Trip History, Spare Parts, BOM, and Priority Scoring).</p>
     <div class="hero-stats">
       <div class="hstat"><b>7</b>Weeks</div>
       <div class="hstat"><b>35</b>Training days</div>
+      <div class="hstat"><b>14 sheets</b>Enhanced dataset</div>
       <div class="hstat"><b>Colab + Power BI</b>Environment</div>
     </div>
   </div>
@@ -268,8 +269,10 @@ const DATA = [
       "Understand the difference between predictive, preventive, and reactive maintenance."
     ], note:"No code today — the focus is purely conceptual."},
     {t:"Day 2 — Equipment and Sensor Data", items:[
-      "Learn the core fields: air temperature, process temperature, torque, vibration, tool wear.",
-      "Understand how each field signals equipment condition."
+      "Learn the core sensor fields: air temperature, process temperature, torque, vibration, tool wear.",
+      "Understand how each field signals equipment condition.",
+      "Meet the asset context from Equipment_Master: Criticality_Class (A/B/C), Has_Standby, Downtime_Cost_per_Hour_SAR, and Safety_Risk_Level.",
+      "See how business context (criticality and downtime cost), not just sensors, drives maintenance priority."
     ]},
     {t:"Day 3 — Failure Investigation Workshop", items:[
       "Take 2–3 sample equipment reading cases.",
@@ -337,32 +340,50 @@ print(check_risk(38, 6.1))`},
 },
 {
   title: "Week 3 — Data Analytics with Python",
-  goal: "Read, clean, and explore the predictive maintenance dataset using Pandas.",
+  goal: "Read, clean, and explore the enhanced predictive maintenance dataset using Pandas, and turn Trip_History into reliability metrics.",
   days: [
-    {t:"Day 1 — Reading the Excel Dataset", items:[
-      "Use Pandas to load the dataset and inspect the first rows."
+    {t:"Day 1 — Reading the Enhanced Excel Dataset", items:[
+      "Use Pandas to load the enhanced workbook and list its 14 sheets.",
+      "Load the core sheets used this week: Equipment_Master and Trip_History."
     ], code:`import pandas as pd
-file_path = 'Predictive_Maintenance_Training_Dataset_7_Week.xlsx'
-df = pd.read_excel(file_path, sheet_name='Training_Dataset')
-df.head()`},
+file_path = 'Predictive_Maintenance_Enhanced_Dataset.xlsx'
+
+# See every sheet in the enhanced workbook
+print(pd.ExcelFile(file_path).sheet_names)
+
+master = pd.read_excel(file_path, sheet_name='Equipment_Master')
+trips  = pd.read_excel(file_path, sheet_name='Trip_History')
+master.head()`, note:"The enhanced file adds 6 new sheets: Equipment_Master (1000 assets), Trip_History (2162 trips), Spare_Parts, Equipment_Parts_BOM, Priority_Scoring, and a 114-column Equipment_Data_Sheet."},
     {t:"Day 2 — Data Types and Missing Values", items:[
-      "Check column types, missing values, duplicates, and basic statistics."
-    ], code:`df.info()
-df.describe()
-df.isnull().sum()
-df.duplicated().sum()`},
+      "Check column types, missing values, duplicates, and basic statistics for both sheets."
+    ], code:`master.info()
+master.describe()
+master.isnull().sum()
+trips.duplicated().sum()`},
     {t:"Day 3 — Exploring Key Columns", items:[
-      "Explore Machine_Failure, Failure_Type, Risk_Level, Vibration, Torque, and Tool_Wear_Min."
-    ], code:`df['Machine_Failure'].value_counts()
-df['Risk_Level'].value_counts()`},
-    {t:"Day 4 — Grouping and Filtering", items:[
-      "Group the data by equipment type to understand failure patterns."
-    ], code:`df.groupby('Equipment_Type')['Machine_Failure'].mean().sort_values(ascending=False)`},
+      "Explore Criticality_Class, Has_Standby, and Safety_Risk_Level in Equipment_Master.",
+      "Explore Failure_Mode, Root_Cause, and Total_Incident_Cost_SAR in Trip_History."
+    ], code:`master['Criticality_Class'].value_counts()
+trips['Failure_Mode'].value_counts()
+trips.groupby('Failure_Mode')['Total_Incident_Cost_SAR'].mean()`},
+    {t:"Day 4 — Reliability Metrics (MTBF)", items:[
+      "Count trips per equipment and estimate MTBF (Mean Time Between Failures).",
+      "Join Trip_History with Equipment_Master on Equipment_ID to bring in criticality and cost."
+    ], code:`# Failures per asset over the recorded window
+fail_count = trips.groupby('Equipment_ID').size().rename('Failure_Count')
+
+# MTBF in days: recorded window divided by number of trips
+window_days = (trips['Trip_Date'].max() - trips['Trip_Date'].min()).days
+mtbf = (window_days / fail_count).rename('MTBF_Days')
+
+reliability = master.join(fail_count, on='Equipment_ID').join(mtbf, on='Equipment_ID')
+reliability.sort_values('MTBF_Days').head(10)  # least reliable assets`},
     {t:"Day 5 — Summarize Your Understanding", items:[
-      "Prepare a clean EDA notebook and summarize what each field means."
+      "Prepare a clean EDA notebook and summarize what each field means.",
+      "List the 5 worst assets by MTBF and the most frequent / most costly failure modes."
     ]}
   ],
-  deliverable: "EDA notebook and a data understanding summary."
+  deliverable: "EDA notebook covering Equipment_Master + Trip_History, a reliability table (MTBF and failure counts), and the top failure modes by frequency and cost."
 },
 {
   title: "Week 4 — Visualization, Power BI Dashboard, and Business Insights",
@@ -379,10 +400,14 @@ df.groupby('Equipment_Type')['Machine_Failure'].mean().plot(kind='bar')
 plt.title('Failure Rate by Equipment Type')
 plt.show()`},
     {t:"Day 2 — Open the Dataset in Power BI", items:[
-      "Open Power BI Desktop and load the Training_Dataset table from the Excel file."
+      "Open Power BI Desktop and load Equipment_Master, Trip_History, and Priority_Scoring from the enhanced Excel file.",
+      "Relate the tables using Equipment_ID so visuals can slice across sheets."
     ]},
-    {t:"Day 3 — Build a Basic Power BI Dashboard", items:[
-      "Build an Overview page, a Failure Analysis page, and a Sensor Insights page (see Section 6 of the plan)."
+    {t:"Day 3 — Build the Four Proposed Dashboards", items:[
+      "Executive Priority: top 20 assets by Priority_Score, colored by Priority_Category, filtered by unit.",
+      "Financial Analysis: monthly downtime losses, upcoming maintenance cost, and top 5 costliest assets.",
+      "Time Prediction: a timeline of when each critical asset is expected to trip in the next 90 days.",
+      "Proactive Inventory: spare parts that must be ordered before month-end to avoid lead-time delays."
     ]},
     {t:"Day 4 — Write Business Insights", items:[
       "Write 5 to 10 business insights based on both Colab charts and Power BI visuals."
@@ -398,12 +423,20 @@ plt.show()`},
   goal: "Train simple models to predict machine failure (Machine_Failure).",
   days: [
     {t:"Day 1 — Define Features and Target", items:[
-      "Identify the input features and the target variable Machine_Failure."
+      "Identify the sensor features and the target variable Machine_Failure.",
+      "Engineer new features from Equipment_Master and Equipment_Data_Sheet to boost prediction quality."
     ], code:`features = ['Equipment_Type','Quality_Type','Air_Temp_C','Process_Temp_C',
             'Rotational_Speed_RPM','Torque_Nm','Tool_Wear_Min','Vibration_mm_s','Pressure_bar']
+
+# Engineered features suggested in the enhanced dataset report
+df['Age_to_Design_Life'] = df['Current_Age_Years'] / df['Design_Life_Years']
+df['Pressure_Utilization'] = df['Operating_Pressure_bar'] / df['Design_Pressure_bar']
+df['NPSH_Margin'] = df['NPSH_Available_m'] - df['NPSH_Required_m']  # low margin = cavitation risk
+features += ['Age_to_Design_Life','Pressure_Utilization','NPSH_Margin']
+
 target = 'Machine_Failure'
 X = df[features]
-y = df[target]`},
+y = df[target]`, note:"NPSH_Margin flags cavitation risk on pumps, Pressure_Utilization flags assets running near design limits, and Age_to_Design_Life flags aging equipment."},
     {t:"Day 2 — Prepare the Data for Modeling", items:[
       "Encode categorical columns and split the data into train/test sets."
     ], code:`from sklearn.model_selection import train_test_split
@@ -467,15 +500,24 @@ optimized_model.fit(X_train, y_train)
 opt_pred = optimized_model.predict(X_test)
 print('Optimized Accuracy:', accuracy_score(y_test, opt_pred))
 print(confusion_matrix(y_test, opt_pred))`},
-    {t:"Day 5 — Finalize the Recommendation Logic", items:[
-      "Link failure probability to risk level and a recommendation.",
-      "Write a short evaluation and optimization report."
-    ], code:`if probability >= 0.7:
-    print('Recommendation: Immediate inspection recommended.')
-elif probability >= 0.4:
-    print('Recommendation: Schedule preventive inspection.')
+    {t:"Day 5 — Finalize the Priority Scoring Logic", items:[
+      "Combine model risk with business context into a 0–100 priority score using 5 weighted criteria.",
+      "Map the score to a category and a recommended action, then write a short optimization report."
+    ], code:`# Weighted priority score (matches the Priority_Scoring sheet)
+# Criticality 30% + Failure probability 25% + Downtime impact 20%
+# + Lead-time risk 15% + Safety 10%  ->  0 to 100
+priority = (0.30*criticality_score + 0.25*failure_prob_score +
+            0.20*downtime_impact_score + 0.15*lead_time_risk_score +
+            0.10*safety_score)
+
+if priority >= 80:
+    print('Critical  -> Immediate maintenance within 48 hours')
+elif priority >= 60:
+    print('High      -> Maintenance within one week')
+elif priority >= 40:
+    print('Medium    -> Maintenance within one month')
 else:
-    print('Recommendation: Continue normal monitoring.')`}
+    print('Low       -> Keep on the routine schedule')`, note:"This mirrors the enhanced dataset: a false negative (a missed real failure) is far more costly than a false alarm, which is why safety and criticality are weighted into the score, not just model probability."}
   ],
   deliverable: "Model evaluation report, before/after comparison, improved model results, and final recommendation logic."
 },
@@ -487,7 +529,8 @@ else:
       "Build an input section that lets you change equipment readings manually."
     ]},
     {t:"Day 2 — Connect the Optimized Model to the Demo", items:[
-      "Show prediction, probability, risk level, and recommendation together."
+      "Show prediction, probability, priority category, and recommended action together.",
+      "Add a spare-parts readiness check using Equipment_Parts_BOM and Spare_Parts."
     ], code:`sample = pd.DataFrame([{
     'Equipment_Type': 'Pump', 'Quality_Type': 'Low',
     'Air_Temp_C': 38.0, 'Process_Temp_C': 49.0,
@@ -497,7 +540,15 @@ else:
 prediction = optimized_model.predict(sample)[0]
 probability = optimized_model.predict_proba(sample)[0][1]
 print('Prediction:', 'Failure' if prediction == 1 else 'No Failure')
-print('Failure Probability:', round(probability*100,1), '%')`},
+print('Failure Probability:', round(probability*100,1), '%')
+
+# Spare-parts readiness for this asset (P-0342)
+bom = pd.read_excel(file_path, sheet_name='Equipment_Parts_BOM')
+spares = pd.read_excel(file_path, sheet_name='Spare_Parts')
+needed = bom[bom['Equipment_ID'] == 'P-0342'].merge(spares, on='Part_Number')
+at_risk = needed[needed['Stock_Quantity'] == 0]
+print('Parts out of stock:', at_risk['Part_Description'].tolist())
+print('Longest lead time (days):', int(needed['Lead_Time_Days_y'].max()))`, note:"The advisor now answers three questions at once: will it fail, how urgent is it (priority category), and are the spare parts on hand to act."},
     {t:"Day 3 — Finalize the Power BI Dashboard", items:[
       "Capture dashboard screenshots for the presentation."
     ]},
