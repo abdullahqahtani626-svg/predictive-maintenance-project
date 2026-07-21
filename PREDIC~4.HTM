@@ -852,12 +852,16 @@
       <div>
         <p class="eyebrow">University AI Co-op Internship</p>
         <h1>Performance Tracking System</h1>
-        <p class="header-copy">A 7-week applied AI program that moves students from Colab and prompt-assisted analysis into Python analytics, machine learning, dashboards, and an AI maintenance advisor demo.</p>
+        <p class="header-copy">A 7-week applied AI program that moves students from Colab and prompt-assisted analysis into Python analytics, machine learning, dashboards, and an AI maintenance advisor demo &mdash; now built on an enhanced industrial dataset with equipment master, trip history, spare parts, BOM, and a weighted priority-scoring model.</p>
       </div>
       <div class="header-stats" aria-label="Program summary">
         <div class="stat-pill">
           <span class="stat-label">Focus</span>
           <span class="stat-value">Industrial AI</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-label">Dataset</span>
+          <span class="stat-value">14 Sheets / 1000 Assets</span>
         </div>
       </div>
     </header>
@@ -887,6 +891,15 @@
       <aside class="side-panel" aria-label="Completion overview">
         <h3>Weekly Milestones</h3>
         <ul class="milestone-list" id="milestoneList"></ul>
+        <h3 style="margin-top:20px;">Enhanced Dataset</h3>
+        <ul class="milestone-list" aria-label="New dataset sheets">
+          <li class="milestone-item done"><span class="milestone-dot">1</span><span>Equipment_Master &mdash; 1000 assets, criticality &amp; cost</span></li>
+          <li class="milestone-item done"><span class="milestone-dot">2</span><span>Trip_History &mdash; 2162 past trips &amp; failure modes</span></li>
+          <li class="milestone-item done"><span class="milestone-dot">3</span><span>Spare_Parts &mdash; parts catalog, stock &amp; lead time</span></li>
+          <li class="milestone-item done"><span class="milestone-dot">4</span><span>Equipment_Parts_BOM &mdash; asset-to-part links</span></li>
+          <li class="milestone-item done"><span class="milestone-dot">5</span><span>Priority_Scoring &mdash; weighted 0&ndash;100 priority</span></li>
+          <li class="milestone-item done"><span class="milestone-dot">6</span><span>Equipment_Data_Sheet &mdash; 114 engineering specs</span></li>
+        </ul>
         <a class="guide-button" href="https://abdullahqahtani626-svg.github.io/predictive-maintenance-project/predictive_maintenance_interactive_guide.html" target="_blank" rel="noopener">Interactive Guide</a>
         <button class="guide-button report-button" id="submitReport" type="button">Submit Final Report</button>
       </aside>
@@ -921,8 +934,8 @@
         activities: [
           "Define reactive, preventive, and predictive maintenance using industrial examples.",
           "Explore common equipment signals: temperature, vibration, torque, rotational speed, and tool wear.",
-          "Use ChatGPT / Copilot to interpret simple machine readings and identify early risk patterns.",
-          "Practice supervisor-ready maintenance summaries using clear operational language.",
+          "Read the asset context in Equipment_Master: Criticality Class (A/B/C), Standby availability, downtime cost per hour, and safety risk level.",
+          "Use ChatGPT / Copilot to interpret machine readings, and explain why a Class A asset with no standby is a higher maintenance priority.",
           "Create a mini briefing that connects maintenance intelligence to uptime, cost, and safety."
         ],
         deliverable: "Maintenance intelligence briefing with example sensor readings, risk classification, and a short supervisor summary.",
@@ -986,6 +999,18 @@
             answer: 0,
             correct: "Correct. Maintenance intelligence should tie back to uptime, cost, and safety.",
             wrong: "Not quite. Focus on uptime, cost, and safety impact."
+          },
+          {
+            question: "In the Equipment_Master sheet, why is a Class A asset with no standby treated as a higher maintenance priority?",
+            options: [
+              "If it fails, production stops with no backup, so the operational impact is highest.",
+              "Because Class A assets are always the newest machines.",
+              "Because Class A assets never need spare parts.",
+              "Because the criticality class has no effect on priority."
+            ],
+            answer: 0,
+            correct: "Correct. A critical asset with no standby has the highest impact if it fails.",
+            wrong: "Not quite. Criticality plus no standby means the biggest disruption on failure."
           }
         ],
         prompts: [
@@ -1081,13 +1106,13 @@
         goal: "Use Pandas to inspect, clean, summarize, and prepare industrial equipment datasets for analysis and modeling.",
         tools: ["Google Colab", "ChatGPT / Copilot", "Python", "Pandas", "Matplotlib"],
         activities: [
-          "Load equipment data into Pandas and inspect rows, columns, data types, and missing values.",
-          "Clean column names, handle missing values, and filter machines by operating condition.",
-          "Calculate summary statistics for sensor readings and failure labels.",
-          "Group data by machine type or risk level to compare equipment behavior.",
-          "Create initial Matplotlib charts that reveal trends, outliers, and risk patterns."
+          "Load the enhanced workbook and its Equipment_Master and Trip_History sheets into Pandas; inspect rows, types, and missing values.",
+          "Clean column names, handle missing values, and join Trip_History to Equipment_Master on Equipment_ID.",
+          "Calculate summary statistics for sensor readings, failure labels, and incident costs.",
+          "Turn Trip_History into reliability metrics: failure count per asset and MTBF (Mean Time Between Failures).",
+          "Create initial Matplotlib charts that reveal failure modes, costliest assets, and risk patterns."
         ],
-        deliverable: "Exploratory data analysis notebook with cleaned data, grouped insights, and first visualizations.",
+        deliverable: "EDA notebook covering Equipment_Master + Trip_History, a reliability table (MTBF and failure counts), and the top failure modes by frequency and cost.",
         quizzes: [
           {
             question: "Which Pandas task is most useful before building charts or models?",
@@ -1148,6 +1173,18 @@
             answer: 0,
             correct: "Correct. Early charts help reveal trends, outliers, and patterns.",
             wrong: "Not quite. Early charts are for exploration, not finalizing the model."
+          },
+          {
+            question: "MTBF (Mean Time Between Failures) computed from Trip_History mainly tells you:",
+            options: [
+              "How reliable an asset is — a lower MTBF means it fails more often.",
+              "The market price of the equipment.",
+              "The color to use in the dashboard.",
+              "The number of columns in the dataset."
+            ],
+            answer: 0,
+            correct: "Correct. A lower MTBF signals a less reliable, higher-attention asset.",
+            wrong: "Not quite. MTBF measures reliability — time between failures, not price or design."
           }
         ]
       },
@@ -1158,11 +1195,11 @@
         activities: [
           "Choose chart types for sensor distribution, failure comparison, and machine status trends.",
           "Use Matplotlib to create clean exploratory charts with titles, labels, and readable scales.",
-          "Import the prepared dataset into Power BI Desktop and check field types.",
-          "Build dashboard visuals for risk level, machine type, sensor readings, and failure counts.",
-          "Write business insight statements that connect visuals to maintenance actions."
+          "Import Equipment_Master, Trip_History, and Priority_Scoring into Power BI and relate them on Equipment_ID.",
+          "Build the four proposed dashboards: Executive Priority (top 20 assets), Financial Analysis (downtime losses), Time Prediction (90-day trip timeline), and Proactive Inventory (parts to reorder).",
+          "Write business insight statements that connect each dashboard to a maintenance action."
         ],
-        deliverable: "Power BI dashboard with core maintenance visuals and a one-slide business insight summary.",
+        deliverable: "Power BI report with the four dashboards (executive priority, financial, time prediction, proactive inventory) and a one-slide business insight summary.",
         quizzes: [
           {
             question: "Choosing the right chart type mainly depends on:",
@@ -1223,6 +1260,18 @@
             answer: 0,
             correct: "Correct. Insight statements should link findings to action.",
             wrong: "Not quite. A good insight connects data to a decision or action."
+          },
+          {
+            question: "The Executive Priority dashboard is most useful to a plant manager because it:",
+            options: [
+              "Shows the top 20 assets by priority score with the reasons behind each score.",
+              "Lists every sensor reading for all 1000 assets at once.",
+              "Only displays the raw Trip_History table.",
+              "Hides the criticality and cost information."
+            ],
+            answer: 0,
+            correct: "Correct. It surfaces the highest-priority assets and why they rank there.",
+            wrong: "Not quite. Managers need a focused, ranked view with the reasoning, not raw tables."
           }
         ]
       },
@@ -1232,12 +1281,12 @@
         tools: ["Google Colab", "ChatGPT / Copilot", "Python", "Pandas", "Scikit-learn"],
         activities: [
           "Define features, target label, and the prediction question in plain language.",
-          "Split data into training and testing sets using Scikit-learn.",
-          "Train a baseline classification model for failure prediction.",
+          "Engineer new features from Equipment_Data_Sheet: NPSH margin (cavitation risk), pressure-utilization ratio, and age-to-design-life ratio.",
+          "Split data into training and testing sets using Scikit-learn, then train a baseline classification model.",
           "Generate predictions and compare them with actual failure labels.",
           "Explain model inputs, outputs, and limitations for a non-technical maintenance audience."
         ],
-        deliverable: "Failure prediction notebook with train-test split, trained model, predictions, and plain-language explanation.",
+        deliverable: "Failure prediction notebook with engineered features, train-test split, trained model, predictions, and a plain-language explanation.",
         quizzes: [
           {
             question: "In a failure prediction model, what is the target label?",
@@ -1298,6 +1347,18 @@
             answer: 0,
             correct: "Correct. Clear limitations build trust and realistic expectations.",
             wrong: "Not quite. Explaining limitations is about honesty and trust."
+          },
+          {
+            question: "Why add an engineered feature like NPSH margin (NPSH available minus NPSH required) for pumps?",
+            options: [
+              "A low or negative margin signals cavitation risk, which the raw sensors alone may miss.",
+              "It makes the dataset file smaller.",
+              "It replaces the need for a train-test split.",
+              "It guarantees the model reaches 100% accuracy."
+            ],
+            answer: 0,
+            correct: "Correct. A small NPSH margin flags cavitation risk that raw readings can hide.",
+            wrong: "Not quite. NPSH margin is a domain feature that exposes cavitation risk."
           }
         ]
       },
@@ -1309,10 +1370,10 @@
           "Calculate accuracy and compare it with the operational cost of wrong predictions.",
           "Review confusion matrix results for false alarms and missed failures.",
           "Discuss precision and recall in the context of maintenance planning.",
-          "Tune selected model settings and compare performance changes.",
-          "Create an evaluation summary with recommended next improvements."
+          "Tune model settings, then combine model risk with business context into the weighted Priority Score (Criticality 30%, Failure probability 25%, Downtime impact 20%, Lead-time risk 15%, Safety 10%).",
+          "Map priority scores to Critical / High / Medium / Low actions and write an evaluation summary with recommended next improvements."
         ],
-        deliverable: "Model evaluation report with metrics, confusion matrix interpretation, and optimization recommendations.",
+        deliverable: "Model evaluation report with metrics, confusion matrix interpretation, the weighted priority-scoring logic, and optimization recommendations.",
         quizzes: [
           {
             question: "Why compare accuracy with the operational cost of wrong predictions?",
@@ -1373,6 +1434,18 @@
             answer: 0,
             correct: "Correct. Summaries should cover metrics, findings, and next steps.",
             wrong: "Not quite. A summary should focus on metrics and improvement recommendations."
+          },
+          {
+            question: "In the weighted Priority Score, which criterion carries the highest weight (30%)?",
+            options: [
+              "Equipment criticality (Class A / B / C).",
+              "Safety risk level.",
+              "Lead-time risk of spare parts.",
+              "The color of the dashboard."
+            ],
+            answer: 0,
+            correct: "Correct. Criticality is weighted highest at 30%, then failure probability at 25%.",
+            wrong: "Not quite. Criticality carries the top weight (30%) in the priority score."
           }
         ]
       },
@@ -1382,12 +1455,12 @@
         tools: ["Google Colab", "ChatGPT / Copilot", "Python", "Pandas", "Scikit-learn", "Power BI Desktop", "PowerPoint"],
         activities: [
           "Select final machine cases that demonstrate low, medium, and high maintenance risk.",
-          "Run the prediction workflow and produce maintenance recommendation text.",
-          "Connect model outputs with dashboard visuals and business interpretation.",
+          "Run the advisor workflow so it outputs prediction, priority category, recommended action, and a spare-parts readiness check from Equipment_Parts_BOM and Spare_Parts.",
+          "Connect model outputs with the Power BI dashboards and the weekly / monthly management reports.",
           "Build a concise PowerPoint demo story for technical and operational stakeholders.",
-          "Present the AI Maintenance Advisor demo with risks, recommendations, and next steps."
+          "Present the AI Maintenance Advisor demo with risks, recommendations, spare-parts status, and next steps."
         ],
-        deliverable: "Final AI Maintenance Advisor demo package with notebook, dashboard, recommendation examples, and presentation.",
+        deliverable: "Final AI Maintenance Advisor demo package: notebook that outputs prediction + priority + spare-parts readiness, the dashboards, recommendation examples, and the presentation.",
         quizzes: [
           {
             question: "Selecting final cases with low, medium, and high risk mainly helps to:",
@@ -1448,6 +1521,18 @@
             answer: 0,
             correct: "Correct. The demo should connect technical output to maintenance action.",
             wrong: "Not quite. The final demo needs an integrated, evidence-based workflow."
+          },
+          {
+            question: "Why does the advisor add a spare-parts readiness check using Equipment_Parts_BOM and Spare_Parts?",
+            options: [
+              "A high-priority asset still can't be fixed on time if a required part is out of stock with a long lead time.",
+              "Because spare parts have nothing to do with maintenance.",
+              "To make the notebook run more slowly.",
+              "To replace the machine learning model entirely."
+            ],
+            answer: 0,
+            correct: "Correct. Knowing part availability turns a prediction into an action that can actually happen.",
+            wrong: "Not quite. Parts availability decides whether an urgent repair can be carried out in time."
           }
         ]
       }
@@ -1610,7 +1695,7 @@
 
       return [
         '<section class="quiz-card" aria-label="Quick Check quizzes">',
-        '<h3>Quick Check &mdash; 5 Questions</h3>',
+        '<h3>Quick Check &mdash; ' + quizzes.length + ' Questions</h3>',
         quizzes.map((quiz, quizIndex) => {
           const selectedOption = sel[quizIndex];
           const hasAnswer = Number.isInteger(selectedOption);
